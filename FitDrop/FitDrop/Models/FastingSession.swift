@@ -110,4 +110,14 @@ enum FastingStage: String, CaseIterable {
         case .deepFast: return "indigo"
         }
     }
+    
+    /// Helper function to get stage for a given number of hours
+    static func forHours(_ hours: Double) -> FastingStage {
+        if hours < 4 { return .digestion }
+        if hours < 8 { return .fatBurning }
+        if hours < 12 { return .glucoseDepletion }
+        if hours < 16 { return .ketosis }
+        if hours < 18 { return .autophagy }
+        return .deepFast
+    }
 }

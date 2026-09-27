@@ -169,6 +169,9 @@ struct FDProgressRing: View {
                 .rotationEffect(.degrees(-90))
                 .animation(.easeInOut(duration: 0.5), value: progress)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Progress")
+        .accessibilityValue("\(Int(progress * 100)) percent")
     }
 }
 
@@ -208,9 +211,11 @@ struct FDPrimaryButton: View {
                     ProgressView()
                         .tint(.white)
                         .scaleEffect(0.9)
+                        .accessibilityLabel("Loading")
                 } else {
                     if let icon {
                         Image(systemName: icon)
+                            .accessibilityHidden(true)
                     }
                     Text(title)
                         .font(.fdHeadline)
@@ -222,6 +227,8 @@ struct FDPrimaryButton: View {
             .foregroundColor(.white)
             .clipShape(RoundedRectangle(cornerRadius: FDRadius.lg))
         }
+        .accessibilityLabel(isLoading ? "Loading" : title)
+        .accessibilityAddTraits(.isButton)
         .disabled(isLoading)
     }
 }

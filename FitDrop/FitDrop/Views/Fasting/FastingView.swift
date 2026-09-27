@@ -126,16 +126,22 @@ struct ActiveFastView: View {
                     Text(vm.formattedElapsed)
                         .font(.system(size: 40, weight: .bold, design: .monospaced))
                         .foregroundColor(.fdLabel)
+                        .accessibilityLabel("Time elapsed: \(vm.formattedElapsed)")
+                        .accessibilityAddTraits(.updatesFrequently)
                     Text("elapsed")
                         .font(.fdCaption)
                         .foregroundColor(.fdSecondaryLabel)
+                        .accessibilityHidden(true)
                     Divider().frame(width: 60)
                     Text(vm.formattedRemaining)
                         .font(.system(size: 22, weight: .semibold, design: .monospaced))
                         .foregroundColor(.fdSecondaryLabel)
+                        .accessibilityLabel("Time remaining: \(vm.formattedRemaining)")
+                        .accessibilityAddTraits(.updatesFrequently)
                     Text("remaining")
                         .font(.fdCaption2)
                         .foregroundColor(.fdTertiaryLabel)
+                        .accessibilityHidden(true)
                 }
             }
 

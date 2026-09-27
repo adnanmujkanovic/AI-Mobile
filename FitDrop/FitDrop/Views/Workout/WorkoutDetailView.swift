@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - Treadmill Workout Detail
 

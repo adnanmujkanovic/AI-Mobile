@@ -96,8 +96,8 @@ struct RunWeek: Identifiable {
     let weekNumber: Int
     let title: String
     let focus: String
-    let sessions: [RunPlanSession]
     let daysPerWeek: Int
+    let sessions: [RunPlanSession]
 }
 
 struct RunningPlanData {

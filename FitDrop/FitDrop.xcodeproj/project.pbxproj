@@ -36,7 +36,6 @@
 		AA000027 /* FastingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000027 /* FastingView.swift */; };
 		AA000028 /* FastingHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000028 /* FastingHistoryView.swift */; };
 		AA000029 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB000029 /* Assets.xcassets */; };
-		AA000030 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB000030 /* Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -284,7 +283,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA000029 /* Assets.xcassets in Resources */,
-				AA000030 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -456,7 +454,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = NO;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FitDrop/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -481,7 +479,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = NO;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FitDrop/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

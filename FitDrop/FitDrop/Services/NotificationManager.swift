@@ -5,6 +5,7 @@ import UserNotifications
 class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
     @Published var authorizationStatus: UNAuthorizationStatus = .notDetermined
+    @Published var lastError: String? = nil
 
     private init() {
         Task { await checkStatus() }
@@ -15,8 +16,11 @@ class NotificationManager: ObservableObject {
             let granted = try await UNUserNotificationCenter.current()
                 .requestAuthorization(options: [.alert, .badge, .sound])
             authorizationStatus = granted ? .authorized : .denied
+            lastError = nil
         } catch {
             print("Notification auth error: \(error)")
+            lastError = "Failed to request notification permissions: \(error.localizedDescription)"
+            authorizationStatus = .denied
         }
     }
 

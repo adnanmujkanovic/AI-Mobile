@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import AVFoundation
+import UIKit
 
 @MainActor
 class WorkoutViewModel: ObservableObject {
@@ -24,6 +25,7 @@ class WorkoutViewModel: ObservableObject {
     private var sessionTimer: Timer? = nil
     private var restTimer: Timer? = nil
     private var audioPlayer: AVAudioPlayer? = nil
+    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
     enum WorkoutTab { case treadmill, mat }
 
@@ -33,6 +35,7 @@ class WorkoutViewModel: ObservableObject {
         selectedTreadmillWorkout = workout
         resetSession()
         isSessionActive = true
+        beginBackgroundTask()
         startSessionTimer()
         startCurrentInterval()
     }
@@ -41,6 +44,7 @@ class WorkoutViewModel: ObservableObject {
         selectedMatWorkout = workout
         resetSession()
         isSessionActive = true
+        beginBackgroundTask()
         startSessionTimer()
     }
 
@@ -57,6 +61,7 @@ class WorkoutViewModel: ObservableObject {
         sessionTimer?.invalidate()
         restTimer?.invalidate()
         isSessionActive = false
+        endBackgroundTask()
 
         let calories: Int
         if let tw = selectedTreadmillWorkout {
@@ -80,6 +85,21 @@ class WorkoutViewModel: ObservableObject {
         modelContext.insert(session)
         try? modelContext.save()
         sessionCompleted = true
+    }
+    
+    // MARK: - Background Task Support
+    
+    private func beginBackgroundTask() {
+        backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
+            self?.endBackgroundTask()
+        }
+    }
+    
+    private func endBackgroundTask() {
+        if backgroundTask != .invalid {
+            UIApplication.shared.endBackgroundTask(backgroundTask)
+            backgroundTask = .invalid
+        }
     }
 
     // MARK: - Treadmill Intervals
@@ -202,6 +222,14 @@ class WorkoutViewModel: ObservableObject {
 
     private func playAudioCue() {
         AudioServicesPlaySystemSound(1016) // system "tweet" sound
+    }
+    
+    // MARK: - Cleanup
+    
+    deinit {
+        sessionTimer?.invalidate()
+        restTimer?.invalidate()
+        // A background task still open here is ended by its expiration handler.
     }
 }
 
