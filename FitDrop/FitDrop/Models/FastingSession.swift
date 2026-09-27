@@ -31,7 +31,12 @@ final class FastingSession {
         guard isActive || completed else { return 0 }
         let end = endTime ?? Date()
         let raw = end.timeIntervalSince(startTime)
-        return max(0, raw - totalPausedSeconds)
+        var paused = totalPausedSeconds
+        // Include the pause in progress, which isn't folded into totalPausedSeconds until resume
+        if isPaused, let pausedAt {
+            paused += max(0, end.timeIntervalSince(pausedAt))
+        }
+        return max(0, raw - paused)
     }
 
     var elapsedHours: Double {
@@ -49,13 +54,7 @@ final class FastingSession {
     }
 
     var fastingStage: FastingStage {
-        let hours = elapsedHours
-        if hours < 4 { return .digestion }
-        if hours < 8 { return .fatBurning }
-        if hours < 12 { return .glucoseDepletion }
-        if hours < 16 { return .ketosis }
-        if hours < 18 { return .autophagy }
-        return .deepFast
+        FastingStage.forHours(elapsedHours)
     }
 }
 

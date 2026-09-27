@@ -84,8 +84,7 @@ class FastingViewModel: ObservableObject {
 
     func breakFast(modelContext: ModelContext) {
         guard let fast = activeFast else { return }
-        fast.endTime = Date()
-        fast.actualHours = fast.elapsedHours
+        finish(fast, at: Date())
         fast.completed = fast.actualHours >= Double(fast.plannedHours)
         fast.brokenEarly = !fast.completed
         fast.isActive = false
@@ -96,14 +95,24 @@ class FastingViewModel: ObservableObject {
 
     func completeFast(modelContext: ModelContext) {
         guard let fast = activeFast else { return }
-        fast.endTime = Date()
-        fast.actualHours = fast.elapsedHours
+        finish(fast, at: Date())
         fast.completed = true
         fast.brokenEarly = false
         fast.isActive = false
         try? modelContext.save()
         stopTimer()
         activeFast = nil
+    }
+
+    /// Stamps the end time and folds any in-progress pause into the paused total.
+    private func finish(_ fast: FastingSession, at end: Date) {
+        if fast.isPaused, let pausedAt = fast.pausedAt {
+            fast.totalPausedSeconds += max(0, end.timeIntervalSince(pausedAt))
+            fast.isPaused = false
+            fast.pausedAt = nil
+        }
+        fast.endTime = end
+        fast.actualHours = fast.elapsedHours
     }
 
     // MARK: - Display Helpers

@@ -21,9 +21,14 @@ class WorkoutViewModel: ObservableObject {
     @Published var restRemainingSeconds: Int = 0
     @Published var sessionCompleted: Bool = false
     @Published var totalCaloriesBurned: Int = 0
+    @Published var isPaused: Bool = false
 
-    private var sessionTimer: Timer? = nil
-    private var restTimer: Timer? = nil
+    // Timing is derived from dates, so it stays correct while the app is suspended.
+    private var ticker: Timer? = nil
+    private var runningSince: Date? = nil
+    private var accumulatedSeconds: TimeInterval = 0
+    private var intervalEndsAt: Date? = nil
+    private var restEndsAt: Date? = nil
     private var audioPlayer: AVAudioPlayer? = nil
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
@@ -36,7 +41,7 @@ class WorkoutViewModel: ObservableObject {
         resetSession()
         isSessionActive = true
         beginBackgroundTask()
-        startSessionTimer()
+        startClock()
         startCurrentInterval()
     }
 
@@ -45,21 +50,40 @@ class WorkoutViewModel: ObservableObject {
         resetSession()
         isSessionActive = true
         beginBackgroundTask()
-        startSessionTimer()
+        startClock()
     }
 
     func pauseSession() {
-        sessionTimer?.invalidate()
-        restTimer?.invalidate()
+        guard isSessionActive, !isPaused else { return }
+        tick()
+        if let runningSince {
+            accumulatedSeconds += Date().timeIntervalSince(runningSince)
+        }
+        runningSince = nil
+        intervalEndsAt = nil
+        restEndsAt = nil
+        ticker?.invalidate()
+        isPaused = true
     }
 
     func resumeSession() {
-        startSessionTimer()
+        guard isSessionActive, isPaused else { return }
+        let now = Date()
+        isPaused = false
+        runningSince = now
+        if currentInterval != nil, intervalRemainingSeconds > 0 {
+            intervalEndsAt = now.addingTimeInterval(TimeInterval(intervalRemainingSeconds))
+        }
+        if isResting {
+            restEndsAt = now.addingTimeInterval(TimeInterval(restRemainingSeconds))
+        }
+        startTicker()
     }
 
     func endSession(modelContext: ModelContext, userWeightKg: Double) {
-        sessionTimer?.invalidate()
-        restTimer?.invalidate()
+        tick()
+        ticker?.invalidate()
+        runningSince = nil
         isSessionActive = false
         endBackgroundTask()
 
@@ -109,7 +133,9 @@ class WorkoutViewModel: ObservableObject {
               currentIntervalIndex < workout.intervals.count else {
             return
         }
-        intervalRemainingSeconds = workout.intervals[currentIntervalIndex].durationSeconds
+        let duration = workout.intervals[currentIntervalIndex].durationSeconds
+        intervalRemainingSeconds = duration
+        intervalEndsAt = isPaused ? nil : Date().addingTimeInterval(TimeInterval(duration))
     }
 
     func nextInterval() {
@@ -167,33 +193,44 @@ class WorkoutViewModel: ObservableObject {
     private func startRest(seconds: Int) {
         isResting = true
         restRemainingSeconds = seconds
-        restTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self else { return }
-                if self.restRemainingSeconds > 0 {
-                    self.restRemainingSeconds -= 1
-                    if self.restRemainingSeconds == 0 {
-                        self.isResting = false
-                        self.restTimer?.invalidate()
-                        self.playAudioCue()
-                    }
-                }
+        restEndsAt = isPaused ? nil : Date().addingTimeInterval(TimeInterval(seconds))
+    }
+
+    // MARK: - Session Clock
+
+    private func startClock() {
+        runningSince = Date()
+        startTicker()
+    }
+
+    private func startTicker() {
+        ticker?.invalidate()
+        ticker = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.tick() }
+        }
+    }
+
+    /// Recomputes all displayed times from the stored dates.
+    private func tick() {
+        let now = Date()
+        let running = runningSince.map { now.timeIntervalSince($0) } ?? 0
+        sessionElapsedSeconds = Int(accumulatedSeconds + running)
+
+        if let intervalEndsAt {
+            intervalRemainingSeconds = secondsRemaining(until: intervalEndsAt, from: now)
+        }
+        if isResting, let restEndsAt {
+            restRemainingSeconds = secondsRemaining(until: restEndsAt, from: now)
+            if restRemainingSeconds == 0 {
+                isResting = false
+                self.restEndsAt = nil
+                playAudioCue()
             }
         }
     }
 
-    // MARK: - Session Timer
-
-    private func startSessionTimer() {
-        sessionTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self else { return }
-                self.sessionElapsedSeconds += 1
-                if self.intervalRemainingSeconds > 0 {
-                    self.intervalRemainingSeconds -= 1
-                }
-            }
-        }
+    private func secondsRemaining(until end: Date, from now: Date) -> Int {
+        max(0, Int(end.timeIntervalSince(now).rounded(.up)))
     }
 
     private func resetSession() {
@@ -206,6 +243,11 @@ class WorkoutViewModel: ObservableObject {
         restRemainingSeconds = 0
         sessionCompleted = false
         totalCaloriesBurned = 0
+        isPaused = false
+        accumulatedSeconds = 0
+        runningSince = nil
+        intervalEndsAt = nil
+        restEndsAt = nil
     }
 
     var formattedSessionTime: String {
@@ -227,8 +269,7 @@ class WorkoutViewModel: ObservableObject {
     // MARK: - Cleanup
     
     deinit {
-        sessionTimer?.invalidate()
-        restTimer?.invalidate()
+        ticker?.invalidate()
         // A background task still open here is ended by its expiration handler.
     }
 }
