@@ -140,10 +140,13 @@ struct FDStatCard: View {
                     .font(.fdCaption)
                     .foregroundColor(.fdSecondaryLabel)
             }
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(FDSpacing.md)
         .fdCard()
-        .fdShadow(radius: 4)
+        .accessibilityElement(children: .combine)
     }
 }
 

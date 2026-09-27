@@ -196,11 +196,11 @@ struct TodayCaloriesCard: View {
                     }
                 }
                 VStack(spacing: FDSpacing.sm) {
-                    SummaryStat(icon: "fork.knife", label: "Eaten", value: "\(Int(consumed))", color: .fdGreen)
-                    SummaryStat(icon: "target", label: "Goal", value: "\(target)", color: .fdSecondaryLabel)
+                    SummaryStat(icon: "fork.knife", label: "Eaten", value: Int(consumed).formatted(), color: .fdGreen)
+                    SummaryStat(icon: "target", label: "Goal", value: target.formatted(), color: .fdSecondaryLabel)
                     SummaryStat(icon: "bolt.heart.fill", label: "Protein", value: "\(Int(protein))/\(proteinGoal)g", color: .fdBlue)
                     if burned > 0 {
-                        SummaryStat(icon: "flame.fill", label: "Burned", value: "\(burned)", color: .fdOrange)
+                        SummaryStat(icon: "flame.fill", label: "Burned", value: burned.formatted(), color: .fdOrange)
                     }
                 }
             }

@@ -3,13 +3,21 @@ import SwiftData
 
 struct RootView: View {
     @Query private var profiles: [UserProfile]
+    #if DEBUG
+    @Environment(\.modelContext) private var modelContext
+    #endif
 
     var body: some View {
-        if let profile = profiles.first, profile.onboardingCompleted {
-            MainTabView()
-        } else {
-            OnboardingView()
+        Group {
+            if let profile = profiles.first, profile.onboardingCompleted {
+                MainTabView()
+            } else {
+                OnboardingView()
+            }
         }
+        #if DEBUG
+        .onAppear { DemoData.seedIfNeeded(modelContext) }
+        #endif
     }
 }
 
@@ -62,6 +70,9 @@ struct MainTabView: View {
         .environment(\.selectTab) { tab in selectedTab = tab }
         .onChange(of: selectedTab) { Haptics.selection() }
         .task {
+            #if DEBUG
+            if let tab = DemoData.initialTab { selectedTab = tab }
+            #endif
             if let profile = profiles.first {
                 NotificationManager.shared.applyPreferences(from: profile)
             }

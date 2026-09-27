@@ -110,29 +110,24 @@ struct ActiveFastView: View {
             // Timer arc
             ZStack {
                 Circle()
-                    .stroke(Color.fdSecondaryLabel.opacity(0.15), lineWidth: 20)
-                    .frame(width: 240, height: 240)
+                    .stroke(Color.fdSecondaryLabel.opacity(0.15), lineWidth: 18)
+                    .frame(width: 250, height: 250)
 
                 Circle()
                     .trim(from: 0, to: vm.progressFraction)
-                    .stroke(
-                        AngularGradient(
-                            colors: [vm.currentStage.swiftUIColor.opacity(0.6), vm.currentStage.swiftUIColor],
-                            center: .center,
-                            startAngle: .degrees(-90),
-                            endAngle: .degrees(270)
-                        ),
-                        style: StrokeStyle(lineWidth: 20, lineCap: .round)
-                    )
-                    .frame(width: 240, height: 240)
+                    .stroke(vm.currentStage.swiftUIColor, style: StrokeStyle(lineWidth: 18, lineCap: .round))
+                    .frame(width: 250, height: 250)
                     .rotationEffect(.degrees(-90))
                     .animation(.easeInOut(duration: 0.5), value: vm.progressFraction)
 
                 VStack(spacing: FDSpacing.xs) {
                     Text(vm.formattedElapsed)
-                        .font(.system(size: 40, weight: .bold, design: .monospaced))
+                        .font(.system(size: 36, weight: .bold, design: .rounded))
+                        .monospacedDigit()
                         .foregroundColor(.fdLabel)
-                        .minimumScaleFactor(0.7)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                        .frame(maxWidth: 190)
                         .accessibilityLabel("Time fasted: \(vm.formattedElapsed)")
                     Text("fasted")
                         .font(.fdCaption)
@@ -145,7 +140,8 @@ struct ActiveFastView: View {
                             .foregroundColor(.fdGreen)
                     } else {
                         Text(vm.formattedRemaining)
-                            .font(.system(size: 22, weight: .semibold, design: .monospaced))
+                            .font(.system(size: 22, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
                             .foregroundColor(.fdSecondaryLabel)
                             .accessibilityLabel("Time remaining: \(vm.formattedRemaining)")
                         Text("to go")

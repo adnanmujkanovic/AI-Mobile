@@ -36,7 +36,8 @@ struct FoodTrackerView: View {
                 Section {
                     DateNavigator(selectedDate: $vm.selectedDate)
                         .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets(top: 0, leading: FDSpacing.md, bottom: FDSpacing.sm, trailing: FDSpacing.md))
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: FDSpacing.sm, trailing: 0))
 
                     NutritionSummaryCard(
                         consumed: totals.calories,
@@ -48,7 +49,8 @@ struct FoodTrackerView: View {
                         fat: totals.fat
                     )
                     .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(top: 0, leading: FDSpacing.md, bottom: 0, trailing: FDSpacing.md))
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
                 }
                 .listSectionSeparator(.hidden)
 
@@ -307,9 +309,9 @@ struct NutritionSummaryCard: View {
                 .accessibilityLabel(isOver ? "\(Int(-remaining)) calories over goal" : "\(Int(remaining)) calories left")
 
                 VStack(alignment: .leading, spacing: FDSpacing.sm) {
-                    SummaryStat(icon: "fork.knife", label: "Eaten", value: "\(Int(consumed))", color: .fdGreen)
-                    SummaryStat(icon: "target", label: "Goal", value: "\(Int(target))", color: .fdSecondaryLabel)
-                    SummaryStat(icon: "flame.fill", label: "Burned", value: burned > 0 ? "\(burned)" : "—", color: .fdOrange)
+                    SummaryStat(icon: "fork.knife", label: "Eaten", value: Int(consumed).formatted(), color: .fdGreen)
+                    SummaryStat(icon: "target", label: "Goal", value: Int(target).formatted(), color: .fdSecondaryLabel)
+                    SummaryStat(icon: "flame.fill", label: "Burned", value: burned > 0 ? burned.formatted() : "—", color: .fdOrange)
                 }
             }
 

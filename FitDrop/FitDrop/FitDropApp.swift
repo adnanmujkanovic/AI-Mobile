@@ -6,7 +6,7 @@ struct FitDropApp: App {
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var health = HealthKitManager.shared
 
-    let container: ModelContainer = {
+    static let container: ModelContainer = {
         let schema = Schema([
             UserProfile.self,
             WorkoutSession.self,
@@ -26,12 +26,20 @@ struct FitDropApp: App {
         }
     }()
 
+    /// Unit tests load the app as their host; they use in-memory stores, so skip the real UI and database.
+    static let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        || ProcessInfo.processInfo.environment["XCTestBundlePath"] != nil
+
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environmentObject(notificationManager)
-                .environmentObject(health)
+            if Self.isRunningTests {
+                Color.clear
+            } else {
+                RootView()
+                    .environmentObject(notificationManager)
+                    .environmentObject(health)
+                    .modelContainer(Self.container)
+            }
         }
-        .modelContainer(container)
     }
 }
