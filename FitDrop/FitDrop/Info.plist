@@ -2,10 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleDisplayName</key>
+	<string>FitDrop</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>FitDrop needs camera access to scan food barcodes.</string>
-	<key>NSUserNotificationsUsageDescription</key>
-	<string>FitDrop sends reminders for fasting windows, workouts, and food logging.</string>
+	<string>FitDrop uses the camera to scan food barcodes so you can log what you eat quickly.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>FitDrop reads your steps and active energy to show how much you moved today.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>FitDrop saves your weight, water, food and workouts to Apple Health so all your data is in one place.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -13,10 +21,6 @@
 		<key>UISceneConfigurations</key>
 		<dict/>
 	</dict>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>processing</string>
-	</array>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

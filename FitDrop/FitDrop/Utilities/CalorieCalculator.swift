@@ -26,11 +26,12 @@ enum CalorieCalculator {
 
         // 1 kg fat ≈ 7700 kcal
         let totalDeficit = weightDiff * 7700
-        let dailyDeficit = totalDeficit / Double(daysToGoal)
+        // A goal at or above the current weight means maintenance, not a surplus
+        let dailyDeficit = max(0, totalDeficit / Double(daysToGoal))
 
-        // Cap deficit at 750 kcal/day max, min 1200 kcal
+        // Cap deficit at 750 kcal/day; never go below 1200 kcal (women) or 1500 kcal (men)
         let target = tdee - min(dailyDeficit, 750)
-        return max(1200, Int(target))
+        return max(isMale ? 1500 : 1200, Int(target))
     }
 
     static func estimateCaloriesBurned(
@@ -51,7 +52,22 @@ enum CalorieCalculator {
         return Int(calories)
     }
 
+    /// 1.6 g protein per kg, the upper end of the range shown to preserve muscle in a deficit.
+    static func proteinTarget(goalWeightKg: Double) -> Int {
+        guard goalWeightKg > 0 else { return 100 }
+        return Int((goalWeightKg * 1.6).rounded())
+    }
+
+    /// 35 ml per kg, rounded to the nearest 250 ml glass and kept within 1.5–4 l.
+    static func waterTarget(weightKg: Double) -> Int {
+        guard weightKg > 0 else { return 2000 }
+        let raw = weightKg * 35
+        let glasses = (raw / 250).rounded()
+        return min(4000, max(1500, Int(glasses) * 250))
+    }
+
     static func bmi(weightKg: Double, heightCm: Double = 170) -> Double {
+        guard heightCm > 0 else { return 0 }
         let heightM = heightCm / 100.0
         return weightKg / (heightM * heightM)
     }

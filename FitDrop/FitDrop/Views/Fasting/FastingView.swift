@@ -7,7 +7,6 @@ struct FastingView: View {
     @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
 
-    @State private var showSettings = false
     @State private var selectedProtocol: FastingViewModel.FastingProtocol = .sixteen_eight
     @State private var showHistory = false
 
@@ -17,15 +16,14 @@ struct FastingView: View {
                 VStack(spacing: FDSpacing.lg) {
                     if let active = sessions.first(where: { $0.isActive }) {
                         ActiveFastView(fast: active, vm: vm)
-                            .onAppear { vm.loadActiveFast(from: sessions) }
                             .padding(.horizontal, FDSpacing.md)
                     } else {
                         StartFastCard(
                             vm: vm,
                             selectedProtocol: $selectedProtocol,
                             profile: profiles.first
-                        ) { hours in
-                            vm.startFast(plannedHours: hours, modelContext: modelContext)
+                        ) { hours, start in
+                            vm.startFast(plannedHours: hours, startTime: start, modelContext: modelContext, profile: profiles.first)
                         }
                         .padding(.horizontal, FDSpacing.md)
                     }
@@ -43,26 +41,40 @@ struct FastingView: View {
                     )
                     .padding(.horizontal, FDSpacing.md)
 
+                    Text("Fasting isn't right for everyone. If you're pregnant, diabetic, have a history of eating disorders or take medication, talk to your doctor first.")
+                        .font(.fdCaption2)
+                        .foregroundColor(.fdTertiaryLabel)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, FDSpacing.xl)
+
                     Spacer(minLength: FDSpacing.xl)
                 }
                 .padding(.vertical, FDSpacing.md)
             }
+            .background(Color.fdGroupedBackground)
             .navigationTitle("Fasting")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        showSettings = true
+                        showHistory = true
                     } label: {
-                        Image(systemName: "bell.fill")
+                        Image(systemName: "clock.arrow.circlepath")
                             .foregroundColor(.fdGreen)
                     }
+                    .accessibilityLabel("Fasting history")
                 }
             }
             .sheet(isPresented: $showHistory) {
-                FastingHistoryView(sessions: sessions, vm: vm, profile: profiles.first)
+                FastingHistoryView(vm: vm, profile: profiles.first)
             }
-            .sheet(isPresented: $showSettings) {
-                FastingNotificationSettings(profile: profiles.first)
+            .onAppear {
+                vm.loadActiveFast(from: sessions)
+                if let profile = profiles.first {
+                    selectedProtocol = FastingViewModel.FastingProtocol(rawValue: profile.fastingProtocol) ?? .sixteen_eight
+                }
+            }
+            .onChange(of: sessions.first(where: { $0.isActive })?.id) {
+                vm.loadActiveFast(from: sessions)
             }
         }
     }
@@ -75,6 +87,10 @@ struct ActiveFastView: View {
     @ObservedObject var vm: FastingViewModel
     @Environment(\.modelContext) private var modelContext
     @State private var showBreakAlert = false
+    @State private var showEditStart = false
+    @State private var showEditGoal = false
+
+    var goalReached: Bool { vm.elapsedSeconds >= Double(fast.plannedHours) * 3600 }
 
     var body: some View {
         VStack(spacing: FDSpacing.lg) {
@@ -82,7 +98,7 @@ struct ActiveFastView: View {
             HStack {
                 Image(systemName: vm.currentStage.icon)
                     .foregroundColor(vm.currentStage.swiftUIColor)
-                Text(vm.currentStage.rawValue)
+                Text(fast.isPaused ? "Paused" : vm.currentStage.rawValue)
                     .font(.fdHeadline)
                     .foregroundColor(vm.currentStage.swiftUIColor)
             }
@@ -93,19 +109,10 @@ struct ActiveFastView: View {
 
             // Timer arc
             ZStack {
-                // Background ring
                 Circle()
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.fdSecondaryBackground, Color.fdSecondaryBackground],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 20
-                    )
+                    .stroke(Color.fdSecondaryLabel.opacity(0.15), lineWidth: 20)
                     .frame(width: 240, height: 240)
 
-                // Progress arc
                 Circle()
                     .trim(from: 0, to: vm.progressFraction)
                     .stroke(
@@ -121,28 +128,38 @@ struct ActiveFastView: View {
                     .rotationEffect(.degrees(-90))
                     .animation(.easeInOut(duration: 0.5), value: vm.progressFraction)
 
-                // Center content
                 VStack(spacing: FDSpacing.xs) {
                     Text(vm.formattedElapsed)
                         .font(.system(size: 40, weight: .bold, design: .monospaced))
                         .foregroundColor(.fdLabel)
-                        .accessibilityLabel("Time elapsed: \(vm.formattedElapsed)")
-                        .accessibilityAddTraits(.updatesFrequently)
-                    Text("elapsed")
+                        .minimumScaleFactor(0.7)
+                        .accessibilityLabel("Time fasted: \(vm.formattedElapsed)")
+                    Text("fasted")
                         .font(.fdCaption)
                         .foregroundColor(.fdSecondaryLabel)
                         .accessibilityHidden(true)
                     Divider().frame(width: 60)
-                    Text(vm.formattedRemaining)
-                        .font(.system(size: 22, weight: .semibold, design: .monospaced))
-                        .foregroundColor(.fdSecondaryLabel)
-                        .accessibilityLabel("Time remaining: \(vm.formattedRemaining)")
-                        .accessibilityAddTraits(.updatesFrequently)
-                    Text("remaining")
-                        .font(.fdCaption2)
-                        .foregroundColor(.fdTertiaryLabel)
-                        .accessibilityHidden(true)
+                    if goalReached {
+                        Label("Goal reached", systemImage: "checkmark.seal.fill")
+                            .font(.fdSubheadline.weight(.semibold))
+                            .foregroundColor(.fdGreen)
+                    } else {
+                        Text(vm.formattedRemaining)
+                            .font(.system(size: 22, weight: .semibold, design: .monospaced))
+                            .foregroundColor(.fdSecondaryLabel)
+                            .accessibilityLabel("Time remaining: \(vm.formattedRemaining)")
+                        Text("to go")
+                            .font(.fdCaption2)
+                            .foregroundColor(.fdTertiaryLabel)
+                            .accessibilityHidden(true)
+                    }
                 }
+            }
+
+            // Start and goal times
+            HStack(spacing: FDSpacing.md) {
+                TimeChip(title: "Started", time: fast.startTime, icon: "pencil") { showEditStart = true }
+                TimeChip(title: fast.isPaused ? "Goal (paused)" : "Goal · \(fast.plannedHours)h", time: fast.goalDate, icon: "pencil") { showEditGoal = true }
             }
 
             // Stage description
@@ -164,26 +181,153 @@ struct ActiveFastView: View {
                     }
                 }
 
-                ActionButton(icon: "xmark.circle.fill", label: "Break Fast", color: .fdRed) {
-                    showBreakAlert = true
+                if goalReached {
+                    ActionButton(icon: "checkmark.circle.fill", label: "End Fast", color: .fdGreen) {
+                        vm.completeFast(modelContext: modelContext)
+                    }
+                } else {
+                    ActionButton(icon: "xmark.circle.fill", label: "Break Fast", color: .fdRed) {
+                        showBreakAlert = true
+                    }
                 }
             }
 
-            // Progress milestones
-            FastingMilestones(fast: fast, elapsedHours: vm.activeFast?.elapsedHours ?? 0)
+            FastingMilestones(fast: fast, elapsedHours: vm.elapsedSeconds / 3600)
         }
         .padding(FDSpacing.md)
         .fdCard()
         .fdShadow()
         .alert("Break Fast?", isPresented: $showBreakAlert) {
-            Button("Cancel", role: .cancel) {}
+            Button("Keep Fasting", role: .cancel) {}
             Button("Break Fast", role: .destructive) {
                 vm.breakFast(modelContext: modelContext)
             }
         } message: {
-            let elapsed = vm.activeFast?.elapsedHours ?? 0
-            Text(String(format: "You've fasted for %.1f hours. This will be logged.", elapsed))
+            Text("You've fasted for \(FastingViewModel.formatHours(vm.elapsedSeconds / 3600)) of \(fast.plannedHours)h. It will be saved in your history.")
         }
+        .sheet(isPresented: $showEditStart) {
+            EditFastStartView(start: fast.startTime) { newStart in
+                vm.updateStartTime(newStart, modelContext: modelContext)
+            }
+        }
+        .sheet(isPresented: $showEditGoal) {
+            EditFastGoalView(hours: fast.plannedHours) { hours in
+                vm.updatePlannedHours(hours, modelContext: modelContext)
+            }
+        }
+    }
+}
+
+struct TimeChip: View {
+    let title: String
+    let time: Date
+    let icon: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 2) {
+                Text(title)
+                    .font(.fdCaption)
+                    .foregroundColor(.fdSecondaryLabel)
+                HStack(spacing: 4) {
+                    Text(Self.label(for: time))
+                        .font(.fdHeadline)
+                        .foregroundColor(.fdLabel)
+                    Image(systemName: icon)
+                        .font(.caption2)
+                        .foregroundColor(.fdGreen)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, FDSpacing.sm)
+            .background(Color.fdSecondaryLabel.opacity(0.08))
+            .clipShape(RoundedRectangle(cornerRadius: FDRadius.md))
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("Double tap to edit")
+    }
+
+    static func label(for date: Date) -> String {
+        let time = date.formatted(date: .omitted, time: .shortened)
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) { return time }
+        if calendar.isDateInYesterday(date) { return "Yest. \(time)" }
+        if calendar.isDateInTomorrow(date) { return "Tmrw. \(time)" }
+        return date.formatted(.dateTime.weekday(.abbreviated).hour().minute())
+    }
+}
+
+struct EditFastStartView: View {
+    @State var start: Date
+    let onSave: (Date) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    DatePicker(
+                        "Started",
+                        selection: $start,
+                        in: Date().addingTimeInterval(-72 * 3600)...Date(),
+                        displayedComponents: [.date, .hourAndMinute]
+                    )
+                    .datePickerStyle(.graphical)
+                } footer: {
+                    Text("Forgot to start the timer? Set when you actually had your last meal.")
+                }
+            }
+            .navigationTitle("Edit Start Time")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        onSave(start)
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct EditFastGoalView: View {
+    @State var hours: Int
+    let onSave: (Int) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Stepper(value: $hours, in: 1...72) {
+                        HStack {
+                            Text("Fasting goal")
+                            Spacer()
+                            Text("\(hours) hours")
+                                .font(.fdHeadline)
+                                .foregroundColor(.fdGreen)
+                        }
+                    }
+                } footer: {
+                    Text("Changing the goal keeps your current progress.")
+                }
+            }
+            .navigationTitle("Edit Goal")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        onSave(hours)
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium])
     }
 }
 
@@ -218,7 +362,8 @@ struct FastingMilestones: View {
         (4, "Fat Burning", .fatBurning),
         (8, "Glucose Depleted", .glucoseDepletion),
         (12, "Ketosis", .ketosis),
-        (16, "Autophagy", .autophagy)
+        (16, "Autophagy", .autophagy),
+        (18, "Deep Fast", .deepFast)
     ]
 
     var body: some View {
@@ -251,9 +396,11 @@ struct StartFastCard: View {
     @ObservedObject var vm: FastingViewModel
     @Binding var selectedProtocol: FastingViewModel.FastingProtocol
     let profile: UserProfile?
-    let onStart: (Int) -> Void
+    let onStart: (Int, Date) -> Void
 
     @State private var customHours: Int = 16
+    @State private var startedEarlier = false
+    @State private var startTime = Date()
 
     var plannedHours: Int {
         selectedProtocol == .custom ? customHours : selectedProtocol.fastingHours
@@ -280,6 +427,7 @@ struct StartFastCard: View {
                         isSelected: selectedProtocol == proto
                     ) {
                         selectedProtocol = proto
+                        Haptics.selection()
                     }
                 }
             }
@@ -290,7 +438,7 @@ struct StartFastCard: View {
                     Text("Fasting hours:")
                         .font(.fdSubheadline)
                     Spacer()
-                    Stepper("\(customHours)h", value: $customHours, in: 12...23)
+                    Stepper("\(customHours)h", value: $customHours, in: 12...72)
                         .labelsHidden()
                     Text("\(customHours)h")
                         .font(.fdHeadline)
@@ -304,7 +452,7 @@ struct StartFastCard: View {
             HStack {
                 Image(systemName: "clock.fill")
                     .foregroundColor(.fdGreen)
-                Text("Eating window: \(24 - plannedHours) hours")
+                Text(plannedHours < 24 ? "Eating window: \(24 - plannedHours) hours" : "Extended fast: \(plannedHours) hours")
                     .font(.fdSubheadline)
                 Spacer()
             }
@@ -312,13 +460,35 @@ struct StartFastCard: View {
             .background(Color.fdGreen.opacity(0.1))
             .clipShape(RoundedRectangle(cornerRadius: FDRadius.sm))
 
+            Toggle(isOn: $startedEarlier.animation()) {
+                Text("I started earlier")
+                    .font(.fdSubheadline)
+            }
+            .tint(.fdGreen)
+            if startedEarlier {
+                DatePicker(
+                    "Last meal",
+                    selection: $startTime,
+                    in: Date().addingTimeInterval(-72 * 3600)...Date(),
+                    displayedComponents: [.date, .hourAndMinute]
+                )
+                .font(.fdSubheadline)
+            }
+
             FDPrimaryButton("Start Fasting", icon: "moon.fill") {
-                onStart(plannedHours)
+                onStart(plannedHours, startedEarlier ? startTime : Date())
+                startedEarlier = false
+                startTime = Date()
             }
         }
         .padding(FDSpacing.md)
         .fdCard()
         .fdShadow()
+        .onAppear {
+            if let profile, FastingViewModel.FastingProtocol(rawValue: profile.fastingProtocol) == .custom {
+                customHours = profile.fastingDuration
+            }
+        }
     }
 }
 
@@ -419,7 +589,7 @@ struct FastingHistorySummary: View {
     let showAll: () -> Void
 
     var completedSessions: [FastingSession] {
-        sessions.filter { $0.completed }.prefix(3).map { $0 }
+        sessions.filter { $0.isFinished }.prefix(3).map { $0 }
     }
 
     var body: some View {
@@ -444,7 +614,7 @@ struct FastingHistorySummary: View {
             }
 
             if completedSessions.isEmpty {
-                Text("No completed fasts yet.")
+                Text("Your finished fasts will appear here.")
                     .font(.fdSubheadline)
                     .foregroundColor(.fdSecondaryLabel)
             } else {
@@ -481,7 +651,7 @@ struct FastHistoryRow: View {
                         .font(.fdCaption)
                         .foregroundColor(.fdSecondaryLabel)
                 }
-                if session.completed && !session.brokenEarly {
+                if session.completed {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.fdGreen)
                 } else if session.brokenEarly {

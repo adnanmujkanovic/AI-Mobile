@@ -12,6 +12,7 @@ class FastingViewModel: ObservableObject {
     private var timer: Timer? = nil
 
     enum FastingProtocol: String, CaseIterable {
+        case thirteen_eleven = "13:11"
         case sixteen_eight = "16:8"
         case eighteen_six = "18:6"
         case twenty_four = "20:4"
@@ -19,6 +20,7 @@ class FastingViewModel: ObservableObject {
 
         var fastingHours: Int {
             switch self {
+            case .thirteen_eleven: return 13
             case .sixteen_eight: return 16
             case .eighteen_six: return 18
             case .twenty_four: return 20
@@ -30,11 +32,16 @@ class FastingViewModel: ObservableObject {
 
         var description: String {
             switch self {
-            case .sixteen_eight: return "16h fast / 8h eating — most popular protocol"
-            case .eighteen_six: return "18h fast / 6h eating — enhanced fat burning"
-            case .twenty_four: return "20h fast / 4h eating — advanced protocol"
-            case .custom: return "Set your own fasting and eating window"
+            case .thirteen_eleven: return "13h fast — a gentle start, overnight plus breakfast later"
+            case .sixteen_eight: return "16h fast / 8h eating — the most popular protocol"
+            case .eighteen_six: return "18h fast / 6h eating — for experienced fasters"
+            case .twenty_four: return "20h fast / 4h eating — advanced"
+            case .custom: return "Choose any length from 12 to 72 hours"
             }
+        }
+
+        static func matching(hours: Int) -> FastingProtocol {
+            allCases.first { $0 != .custom && $0.fastingHours == hours } ?? .custom
         }
     }
 
@@ -47,7 +54,7 @@ class FastingViewModel: ObservableObject {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                guard let self, let fast = self.activeFast, !fast.isPaused else { return }
+                guard let self, let fast = self.activeFast else { return }
                 self.elapsedSeconds = fast.elapsedSeconds
             }
         }
@@ -60,18 +67,25 @@ class FastingViewModel: ObservableObject {
 
     // MARK: - Fast Controls
 
-    func startFast(plannedHours: Int, modelContext: ModelContext) {
-        let fast = FastingSession(startTime: Date(), plannedHours: plannedHours)
+    func startFast(plannedHours: Int, startTime: Date = Date(), modelContext: ModelContext, profile: UserProfile? = nil) {
+        let fast = FastingSession(startTime: min(startTime, Date()), plannedHours: plannedHours)
         modelContext.insert(fast)
-        try? modelContext.save()
+        profile?.fastingDuration = plannedHours
+        profile?.eatingWindowDuration = max(0, 24 - plannedHours)
+        profile?.fastingProtocol = FastingProtocol.matching(hours: plannedHours).rawValue
+        modelContext.saveOrLog()
         startTimer(for: fast)
+        Self.refreshReminders(for: fast, profile: profile)
+        Haptics.success()
     }
 
     func pauseFast(modelContext: ModelContext) {
         guard let fast = activeFast, !fast.isPaused else { return }
         fast.isPaused = true
         fast.pausedAt = Date()
-        try? modelContext.save()
+        modelContext.saveOrLog()
+        elapsedSeconds = fast.elapsedSeconds
+        Self.refreshReminders(for: fast, profile: nil)
     }
 
     func resumeFast(modelContext: ModelContext) {
@@ -79,40 +93,55 @@ class FastingViewModel: ObservableObject {
         fast.totalPausedSeconds += Date().timeIntervalSince(pausedAt)
         fast.isPaused = false
         fast.pausedAt = nil
-        try? modelContext.save()
+        modelContext.saveOrLog()
+        Self.refreshReminders(for: fast, profile: nil)
+    }
+
+    /// Moves the start of the active fast, e.g. when the user forgot to press Start.
+    func updateStartTime(_ newStart: Date, modelContext: ModelContext) {
+        guard let fast = activeFast else { return }
+        fast.startTime = Self.clampedStart(newStart)
+        modelContext.saveOrLog()
+        elapsedSeconds = fast.elapsedSeconds
+        Self.refreshReminders(for: fast, profile: nil)
+    }
+
+    /// Changes the goal of the active fast.
+    func updatePlannedHours(_ hours: Int, modelContext: ModelContext) {
+        guard let fast = activeFast else { return }
+        fast.plannedHours = min(72, max(1, hours))
+        modelContext.saveOrLog()
+        Self.refreshReminders(for: fast, profile: nil)
+    }
+
+    /// A start time can't be in the future or more than three days back.
+    nonisolated static func clampedStart(_ date: Date, now: Date = Date()) -> Date {
+        min(now, max(now.addingTimeInterval(-72 * 3600), date))
     }
 
     func breakFast(modelContext: ModelContext) {
         guard let fast = activeFast else { return }
-        finish(fast, at: Date())
-        fast.completed = fast.actualHours >= Double(fast.plannedHours)
-        fast.brokenEarly = !fast.completed
-        fast.isActive = false
-        try? modelContext.save()
+        Self.end(fast, modelContext: modelContext)
         stopTimer()
         activeFast = nil
     }
 
     func completeFast(modelContext: ModelContext) {
-        guard let fast = activeFast else { return }
-        finish(fast, at: Date())
-        fast.completed = true
-        fast.brokenEarly = false
-        fast.isActive = false
-        try? modelContext.save()
-        stopTimer()
-        activeFast = nil
+        breakFast(modelContext: modelContext)
     }
 
-    /// Stamps the end time and folds any in-progress pause into the paused total.
-    private func finish(_ fast: FastingSession, at end: Date) {
-        if fast.isPaused, let pausedAt = fast.pausedAt {
-            fast.totalPausedSeconds += max(0, end.timeIntervalSince(pausedAt))
-            fast.isPaused = false
-            fast.pausedAt = nil
-        }
-        fast.endTime = end
-        fast.actualHours = fast.elapsedHours
+    /// Ends a fast from anywhere in the app and clears its reminders and Live Activity.
+    static func end(_ fast: FastingSession, modelContext: ModelContext) {
+        fast.end()
+        modelContext.saveOrLog()
+        NotificationManager.shared.cancelActiveFastNotifications()
+        FastingLiveActivity.end(finalFast: fast)
+        if fast.completed { Haptics.success() }
+    }
+
+    private static func refreshReminders(for fast: FastingSession, profile: UserProfile?) {
+        NotificationManager.shared.scheduleActiveFastNotifications(for: fast)
+        FastingLiveActivity.startOrUpdate(for: fast)
     }
 
     // MARK: - Display Helpers
@@ -134,12 +163,21 @@ class FastingViewModel: ObservableObject {
         return String(format: "%02d:%02d:%02d", h, m, s)
     }
 
+    /// e.g. "14h 5m"
+    nonisolated static func formatHours(_ hours: Double) -> String {
+        let totalMinutes = Int(hours * 60)
+        let h = totalMinutes / 60
+        let m = totalMinutes % 60
+        return h > 0 ? "\(h)h \(m)m" : "\(m)m"
+    }
+
     var currentStage: FastingStage {
-        activeFast?.fastingStage ?? .digestion
+        FastingStage.forHours(elapsedSeconds / 3600)
     }
 
     var progressFraction: Double {
-        activeFast?.progressFraction ?? 0
+        guard let fast = activeFast, fast.plannedHours > 0 else { return 0 }
+        return min(1, elapsedSeconds / (Double(fast.plannedHours) * 3600))
     }
 
     func loadActiveFast(from sessions: [FastingSession]) {
@@ -147,31 +185,27 @@ class FastingViewModel: ObservableObject {
             if activeFast?.id != active.id {
                 startTimer(for: active)
             }
+            FastingLiveActivity.startOrUpdate(for: active)
+        } else if activeFast != nil {
+            stopTimer()
+            activeFast = nil
         }
     }
 
-    func weeklyAverageFastingHours(sessions: [FastingSession]) -> Double {
-        let oneWeekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date()) ?? Date()
+    // MARK: - Stats
+
+    func weeklyAverageFastingHours(sessions: [FastingSession], now: Date = Date()) -> Double {
+        let oneWeekAgo = Calendar.current.date(byAdding: .day, value: -7, to: now) ?? now
         let weekSessions = sessions.filter {
-            $0.completed && $0.endTime ?? Date() >= oneWeekAgo
+            $0.isFinished && ($0.endTime ?? now) >= oneWeekAgo
         }
         guard !weekSessions.isEmpty else { return 0 }
         return weekSessions.reduce(0) { $0 + $1.actualHours } / Double(weekSessions.count)
     }
 
-    func consecutiveStreak(sessions: [FastingSession], profile: UserProfile?) -> Int {
-        let completed = sessions.filter { $0.completed }.sorted { ($0.endTime ?? $0.startTime) > ($1.endTime ?? $1.startTime) }
-        var streak = 0
-        var checkDate = Calendar.current.startOfDay(for: Date())
-        for session in completed {
-            let sessionDay = Calendar.current.startOfDay(for: session.startTime)
-            if sessionDay == checkDate || sessionDay == Calendar.current.date(byAdding: .day, value: -1, to: checkDate)! {
-                streak += 1
-                checkDate = sessionDay
-            } else {
-                break
-            }
-        }
-        return streak
+    /// Consecutive days, ending today or yesterday, on which a fast reached its goal.
+    func consecutiveStreak(sessions: [FastingSession], profile: UserProfile?, now: Date = Date()) -> Int {
+        let days = sessions.filter { $0.completed }.map { $0.endTime ?? $0.startTime }
+        return Streaks.consecutiveDays(days, now: now)
     }
 }

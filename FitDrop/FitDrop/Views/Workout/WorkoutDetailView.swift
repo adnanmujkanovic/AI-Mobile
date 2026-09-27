@@ -7,9 +7,7 @@ struct TreadmillWorkoutDetailView: View {
     let workout: TreadmillWorkout
     @ObservedObject var vm: WorkoutViewModel
     let userWeight: Double
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @State private var showSession = false
 
     var body: some View {
         NavigationStack {
@@ -74,30 +72,15 @@ struct TreadmillWorkoutDetailView: View {
                             .foregroundColor(.fdSecondaryLabel)
                             .tracking(1)
                             .padding(.horizontal, FDSpacing.md)
-                        HStack(spacing: 2) {
-                            ForEach(workout.intervals) { interval in
-                                VStack(spacing: 2) {
-                                    RoundedRectangle(cornerRadius: 3)
-                                        .fill(interval.zone.swiftUIColor)
-                                        .frame(
-                                            width: .infinity,
-                                            height: CGFloat(interval.durationSeconds) / 60
-                                        )
-                                        .frame(maxWidth: .infinity)
-                                }
-                            }
-                        }
+                        IntensityMap(intervals: workout.intervals)
                         .frame(height: 60)
                         .padding(.horizontal, FDSpacing.md)
                     }
 
                     // Start Button
                     FDPrimaryButton("Start Workout", icon: "play.fill") {
+                        vm.startTreadmillSession(workout)
                         dismiss()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            vm.startTreadmillSession(workout)
-                            showSession = true
-                        }
                     }
                     .padding(.horizontal, FDSpacing.md)
                     .padding(.bottom, FDSpacing.xl)
@@ -112,10 +95,30 @@ struct TreadmillWorkoutDetailView: View {
                 }
             }
         }
-        .fullScreenCover(isPresented: $showSession) {
-            WorkoutSessionView(vm: vm, userWeightKg: userWeight)
-                .environment(\.modelContext, modelContext)
+    }
+}
+
+struct IntensityMap: View {
+    let intervals: [WorkoutInterval]
+
+    var body: some View {
+        GeometryReader { geo in
+            let total = max(1, intervals.reduce(0) { $0 + $1.durationSeconds })
+            let spacing: CGFloat = 2
+            let usable = geo.size.width - spacing * CGFloat(max(0, intervals.count - 1))
+            HStack(alignment: .bottom, spacing: spacing) {
+                ForEach(intervals) { interval in
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(interval.zone.swiftUIColor)
+                        .frame(
+                            width: max(2, usable * CGFloat(interval.durationSeconds) / CGFloat(total)),
+                            height: geo.size.height * interval.zone.intensity
+                        )
+                }
+            }
+            .frame(width: geo.size.width, height: geo.size.height, alignment: .bottomLeading)
         }
+        .accessibilityHidden(true)
     }
 }
 
@@ -168,9 +171,7 @@ struct MatWorkoutDetailView: View {
     let workout: MatWorkout
     @ObservedObject var vm: WorkoutViewModel
     let userWeight: Double
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @State private var showSession = false
 
     var categoryColor: Color {
         switch workout.category {
@@ -219,11 +220,8 @@ struct MatWorkoutDetailView: View {
                     }
 
                     FDPrimaryButton("Start Workout", icon: "play.fill") {
+                        vm.startMatSession(workout)
                         dismiss()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            vm.startMatSession(workout)
-                            showSession = true
-                        }
                     }
                     .padding(.horizontal, FDSpacing.md)
                     .padding(.bottom, FDSpacing.xl)
@@ -237,10 +235,6 @@ struct MatWorkoutDetailView: View {
                     Button("Close") { dismiss() }
                 }
             }
-        }
-        .fullScreenCover(isPresented: $showSession) {
-            WorkoutSessionView(vm: vm, userWeightKg: userWeight)
-                .environment(\.modelContext, modelContext)
         }
     }
 }

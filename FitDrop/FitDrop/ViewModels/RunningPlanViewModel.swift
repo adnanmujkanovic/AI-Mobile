@@ -3,7 +3,7 @@ import SwiftData
 
 @MainActor
 class RunningPlanViewModel: ObservableObject {
-    @Published var expandedWeek: Int? = 1
+    @Published var expandedWeek: Int? = nil
 
     func completeSession(_ session: RunPlanSession, modelContext: ModelContext) {
         let runSession = RunSession(
@@ -17,7 +17,51 @@ class RunningPlanViewModel: ObservableObject {
         runSession.completed = true
         runSession.completedDate = Date()
         modelContext.insert(runSession)
-        try? modelContext.save()
+        modelContext.saveOrLog()
+        Haptics.success()
+        saveToHealth(runSession)
+    }
+
+    /// Removes the completion of a plan session, e.g. when it was ticked by mistake.
+    func uncompleteSession(_ session: RunPlanSession, allSessions: [RunSession], modelContext: ModelContext) {
+        allSessions
+            .filter { $0.planSessionIndex == session.sessionNumber }
+            .forEach { modelContext.delete($0) }
+        modelContext.saveOrLog()
+    }
+
+    /// Logs a run that isn't part of the plan.
+    func logCustomRun(distanceKm: Double, durationMinutes: Int, date: Date, modelContext: ModelContext) {
+        guard distanceKm > 0, durationMinutes > 0 else { return }
+        let run = RunSession(
+            planWeek: 0,
+            planDay: 0,
+            planSessionIndex: RunSession.customRunIndex,
+            distanceKm: distanceKm,
+            durationMinutes: durationMinutes,
+            paceZone: PaceZone.easy.rawValue
+        )
+        run.date = date
+        run.completed = true
+        run.completedDate = date
+        modelContext.insert(run)
+        modelContext.saveOrLog()
+        Haptics.success()
+        saveToHealth(run)
+    }
+
+    private func saveToHealth(_ run: RunSession) {
+        let end = run.completedDate ?? Date()
+        let start = end.addingTimeInterval(-Double(run.durationMinutes) * 60)
+        // Running costs roughly 1 kcal per kg per km; use a 70 kg default when weight is unknown
+        HealthKitManager.shared.saveWorkout(
+            name: "Run",
+            isRun: true,
+            start: start,
+            end: end,
+            calories: run.distanceKm * 70,
+            distanceKm: run.distanceKm
+        )
     }
 
     func isSessionCompleted(_ session: RunPlanSession, allSessions: [RunSession]) -> Bool {
@@ -34,39 +78,37 @@ class RunningPlanViewModel: ObservableObject {
     }
 
     func overallProgress(allSessions: [RunSession]) -> Double {
-        let total = RunningPlanData.plan.flatMap { $0.sessions }.count
-        let completed = RunningPlanData.plan.flatMap { $0.sessions }.filter {
-            isSessionCompleted($0, allSessions: allSessions)
-        }.count
-        return total > 0 ? Double(completed) / Double(total) : 0
+        let all = RunningPlanData.plan.flatMap { $0.sessions }
+        let completed = all.filter { isSessionCompleted($0, allSessions: allSessions) }.count
+        return all.isEmpty ? 0 : Double(completed) / Double(all.count)
+    }
+
+    /// The first plan session not yet done, to highlight as "up next".
+    func nextSession(allSessions: [RunSession]) -> RunPlanSession? {
+        RunningPlanData.plan.flatMap { $0.sessions }.first { !isSessionCompleted($0, allSessions: allSessions) }
+    }
+
+    /// The week containing the next session, expanded by default.
+    func currentWeek(allSessions: [RunSession]) -> Int {
+        nextSession(allSessions: allSessions)?.week ?? RunningPlanData.plan.last?.weekNumber ?? 1
     }
 
     func totalDistanceRun(allSessions: [RunSession]) -> Double {
         allSessions.filter { $0.completed }.reduce(0) { $0 + $1.distanceKm }
     }
 
+    /// Consecutive weeks with at least one run. Runs aren't daily, so days would always break.
     func runningStreak(allSessions: [RunSession]) -> Int {
-        let completed = allSessions.filter { $0.completed && $0.completedDate != nil }
-            .sorted { ($0.completedDate ?? Date()) > ($1.completedDate ?? Date()) }
-        var streak = 0
-        var checkDate = Calendar.current.startOfDay(for: Date())
-        for session in completed {
-            let day = Calendar.current.startOfDay(for: session.completedDate ?? session.date)
-            if day == checkDate || day == Calendar.current.date(byAdding: .day, value: -1, to: checkDate)! {
-                streak += 1
-                checkDate = day
-            } else {
-                break
-            }
-        }
-        return streak
+        Streaks.consecutiveWeeks(allSessions.filter { $0.completed }.map { $0.completedDate ?? $0.date })
     }
 
-    func completedDates(allSessions: [RunSession]) -> Set<String> {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return Set(allSessions.filter { $0.completed }.compactMap {
-            $0.completedDate.map { formatter.string(from: $0) }
-        })
+    func completedDays(allSessions: [RunSession]) -> Set<Date> {
+        Set(allSessions.filter { $0.completed }.map { Calendar.current.startOfDay(for: $0.completedDate ?? $0.date) })
+    }
+
+    func customRuns(allSessions: [RunSession]) -> [RunSession] {
+        allSessions
+            .filter { $0.planSessionIndex == RunSession.customRunIndex }
+            .sorted { ($0.completedDate ?? $0.date) > ($1.completedDate ?? $1.date) }
     }
 }

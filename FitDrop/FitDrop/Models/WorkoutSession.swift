@@ -62,6 +62,17 @@ enum SpeedZone: String, CaseIterable {
     case walk = "Walk"
     case rest = "Rest"
 
+    /// 0–1 effort level, used for the height of the intensity map
+    var intensity: Double {
+        switch self {
+        case .rest: return 0.1
+        case .walk: return 0.3
+        case .easy: return 0.55
+        case .tempo: return 0.8
+        case .interval: return 1.0
+        }
+    }
+
     var speedRange: String {
         switch self {
         case .easy: return "6–7 km/h"

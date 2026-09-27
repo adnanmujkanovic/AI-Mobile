@@ -6,8 +6,13 @@ struct WorkoutLibraryView: View {
     @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
 
+    @Query(sort: \WorkoutSession.date, order: .reverse) private var history: [WorkoutSession]
+
     @State private var showTreadmillDetail: TreadmillWorkout? = nil
     @State private var showMatDetail: MatWorkout? = nil
+    @State private var showSession = false
+
+    var userWeight: Double { profiles.first?.currentWeight ?? 70 }
 
     var body: some View {
         NavigationStack {
@@ -20,6 +25,11 @@ struct WorkoutLibraryView: View {
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal, FDSpacing.md)
+
+                    if !history.isEmpty {
+                        RecentWorkoutsCard(sessions: Array(history.prefix(3)))
+                            .padding(.horizontal, FDSpacing.md)
+                    }
 
                     // Speed Zones Reference (treadmill only)
                     if vm.selectedTab == .treadmill {
@@ -46,16 +56,62 @@ struct WorkoutLibraryView: View {
                 }
                 .padding(.vertical, FDSpacing.md)
             }
-            .navigationTitle("Workout Library")
-            .sheet(item: $showTreadmillDetail) { workout in
-                TreadmillWorkoutDetailView(workout: workout, vm: vm, userWeight: profiles.first?.currentWeight ?? 70)
-                    .environment(\.modelContext, modelContext)
+            .background(Color.fdGroupedBackground)
+            .navigationTitle("Workouts")
+            // The session opens once the detail sheet has finished closing
+            .sheet(item: $showTreadmillDetail, onDismiss: presentSessionIfStarted) { workout in
+                TreadmillWorkoutDetailView(workout: workout, vm: vm, userWeight: userWeight)
             }
-            .sheet(item: $showMatDetail) { workout in
-                MatWorkoutDetailView(workout: workout, vm: vm, userWeight: profiles.first?.currentWeight ?? 70)
-                    .environment(\.modelContext, modelContext)
+            .sheet(item: $showMatDetail, onDismiss: presentSessionIfStarted) { workout in
+                MatWorkoutDetailView(workout: workout, vm: vm, userWeight: userWeight)
+            }
+            .fullScreenCover(isPresented: $showSession) {
+                WorkoutSessionView(vm: vm, userWeightKg: userWeight)
             }
         }
+    }
+}
+
+extension WorkoutLibraryView {
+    private func presentSessionIfStarted() {
+        if vm.isSessionActive { showSession = true }
+    }
+}
+
+// MARK: - Recent Workouts
+
+struct RecentWorkoutsCard: View {
+    let sessions: [WorkoutSession]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: FDSpacing.sm) {
+            Text("RECENT")
+                .font(.fdCaption)
+                .foregroundColor(.fdSecondaryLabel)
+                .tracking(1)
+            ForEach(sessions) { session in
+                HStack {
+                    Image(systemName: session.workoutType == "treadmill" ? "figure.run" : "figure.strengthtraining.functional")
+                        .foregroundColor(.fdGreen)
+                        .frame(width: 24)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(session.workoutName)
+                            .font(.fdSubheadline)
+                        Text(session.date.formatted(.relative(presentation: .named)))
+                            .font(.fdCaption)
+                            .foregroundColor(.fdSecondaryLabel)
+                    }
+                    Spacer()
+                    Text("\(session.duration / 60) min · \(session.estimatedCalories) kcal")
+                        .font(.fdCaption)
+                        .foregroundColor(.fdSecondaryLabel)
+                }
+                .accessibilityElement(children: .combine)
+            }
+        }
+        .padding(FDSpacing.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .fdCard()
     }
 }
 

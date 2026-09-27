@@ -3,6 +3,9 @@ import SwiftData
 
 @Model
 final class RunSession {
+    /// `planSessionIndex` value for runs logged outside the plan
+    static let customRunIndex = -1
+
     var id: UUID = UUID()
     var date: Date = Date()
     var planWeek: Int = 1

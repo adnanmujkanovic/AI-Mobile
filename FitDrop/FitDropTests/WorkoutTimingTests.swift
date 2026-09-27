@@ -137,6 +137,84 @@ struct WorkoutTimingTests {
         #expect(vm.sessionCompleted)
     }
 
+    @Test func intervalsAdvanceAutomatically() {
+        vm.startTreadmillSession(Self.treadmill)
+        clock.advance(61)
+        vm.tick()
+
+        #expect(vm.currentIntervalIndex == 1)
+        #expect(vm.intervalRemainingSeconds == 119)
+        #expect(!vm.treadmillFinished)
+    }
+
+    @Test func finishesAfterLastInterval() {
+        vm.startTreadmillSession(Self.treadmill)
+        clock.advance(181)
+        vm.tick()
+
+        #expect(vm.treadmillFinished)
+        #expect(vm.currentIntervalIndex == 1)
+        #expect(vm.nextIntervalPreview == nil)
+    }
+
+    @Test func skippingLastIntervalFinishes() {
+        vm.startTreadmillSession(Self.treadmill)
+        vm.nextInterval()
+        vm.nextInterval()
+        #expect(vm.treadmillFinished)
+    }
+
+    @Test func holdTimerCountsDownAndPauses() {
+        vm.startMatSession(Self.mat)
+        vm.startHold(seconds: 30)
+        clock.advance(10)
+        vm.tick()
+        #expect(vm.holdRemainingSeconds == 20)
+
+        vm.pauseSession()
+        clock.advance(60)
+        vm.resumeSession()
+        clock.advance(20)
+        vm.tick()
+        #expect(!vm.isHolding)
+        #expect(vm.holdRemainingSeconds == 0)
+    }
+
+    @Test func startingMatAfterTreadmillClearsTreadmill() {
+        vm.startTreadmillSession(Self.treadmill)
+        vm.cancelSession()
+        vm.startMatSession(Self.mat)
+
+        #expect(vm.selectedTreadmillWorkout == nil)
+        #expect(vm.selectedMatWorkout != nil)
+    }
+
+    @Test func caloriesScaleWithWeightAndTimeSpent() {
+        #expect(WorkoutViewModel.caloriesBurned(baseCalories: 300, plannedSeconds: 1800, elapsedSeconds: 1800, userWeightKg: 70) == 300)
+        #expect(WorkoutViewModel.caloriesBurned(baseCalories: 300, plannedSeconds: 1800, elapsedSeconds: 900, userWeightKg: 70) == 150)
+        #expect(WorkoutViewModel.caloriesBurned(baseCalories: 300, plannedSeconds: 1800, elapsedSeconds: 3600, userWeightKg: 105) == 450)
+    }
+
+    @Test func endingEarlyRecordsPartialCalories() throws {
+        let context = try Self.makeContext()
+        vm.startTreadmillSession(Self.treadmill)
+        clock.advance(90)
+        vm.endSession(modelContext: context, userWeightKg: 70)
+
+        // Half of the 180 s workout: half of 70 kg × 3 kcal/kg
+        #expect(vm.totalCaloriesBurned == 105)
+    }
+
+    @Test func cancelDiscardsSession() throws {
+        let context = try Self.makeContext()
+        vm.startTreadmillSession(Self.treadmill)
+        clock.advance(30)
+        vm.cancelSession()
+
+        #expect(!vm.isSessionActive)
+        #expect(try context.fetchCount(FetchDescriptor<WorkoutSession>()) == 0)
+    }
+
     private static func makeContext() throws -> ModelContext {
         let container = try ModelContainer(
             for: WorkoutSession.self,

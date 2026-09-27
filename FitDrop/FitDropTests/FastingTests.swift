@@ -99,3 +99,99 @@ struct FastingViewModelTests {
         #expect(abs(fast.elapsedHours - 2) < 0.01)
     }
 }
+
+struct FastingSessionLifecycleTests {
+    @Test func endMarksGoalReachedOrBroken() {
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        let done = FastingSession(startTime: start, plannedHours: 16)
+        done.end(at: start.addingTimeInterval(16.5 * hour))
+        #expect(done.completed && !done.brokenEarly && !done.isActive && done.isFinished)
+        #expect(done.actualHours == 16.5)
+
+        let broken = FastingSession(startTime: start, plannedHours: 16)
+        broken.end(at: start.addingTimeInterval(10 * hour))
+        #expect(!broken.completed && broken.brokenEarly && broken.isFinished)
+    }
+
+    @Test func goalDateShiftsWithPauses() {
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        let fast = FastingSession(startTime: start, plannedHours: 16)
+        fast.totalPausedSeconds = 2 * hour
+        #expect(fast.goalDate == start.addingTimeInterval(18 * hour))
+    }
+
+    @Test func startTimeIsClamped() {
+        let now = Date(timeIntervalSinceReferenceDate: 1_000_000)
+        #expect(FastingViewModel.clampedStart(now.addingTimeInterval(3600), now: now) == now)
+        #expect(FastingViewModel.clampedStart(now.addingTimeInterval(-100 * hour), now: now) == now.addingTimeInterval(-72 * hour))
+    }
+
+    @Test func formatsHours() {
+        #expect(FastingViewModel.formatHours(14.0833) == "14h 4m")
+        #expect(FastingViewModel.formatHours(0.5) == "30m")
+    }
+
+    @Test(arguments: [(13, FastingViewModel.FastingProtocol.thirteen_eleven), (16, .sixteen_eight), (20, .twenty_four), (36, .custom)])
+    func protocolMatchesHours(hours: Int, expected: FastingViewModel.FastingProtocol) {
+        #expect(FastingViewModel.FastingProtocol.matching(hours: hours) == expected)
+    }
+}
+
+@MainActor
+struct FastingFlowTests {
+    let context: ModelContext
+    let vm = FastingViewModel()
+
+    init() throws {
+        context = try TestSupport.makeContext()
+    }
+
+    @Test func startFastRemembersProtocolOnProfile() throws {
+        let profile = UserProfile(name: "A", currentWeight: 80, goalWeight: 70, goalDate: Date().addingTimeInterval(90 * 86400), activityLevel: "sedentary")
+        context.insert(profile)
+        vm.startFast(plannedHours: 18, startTime: Date().addingTimeInterval(-hour), modelContext: context, profile: profile)
+        defer { vm.stopTimer() }
+
+        #expect(profile.fastingDuration == 18)
+        #expect(profile.fastingProtocol == "18:6")
+        let fast = try #require(vm.activeFast)
+        #expect(abs(fast.elapsedHours - 1) < 0.01)
+    }
+
+    @Test func editingStartTimeMovesElapsed() throws {
+        vm.startFast(plannedHours: 16, modelContext: context)
+        defer { vm.stopTimer() }
+        vm.updateStartTime(Date().addingTimeInterval(-5 * hour), modelContext: context)
+
+        #expect(abs((vm.activeFast?.elapsedHours ?? 0) - 5) < 0.01)
+    }
+
+    @Test func brokenFastsCountInWeeklyAverage() {
+        let now = Date()
+        let broken = FastingSession(startTime: now.addingTimeInterval(-30 * hour), plannedHours: 16)
+        broken.end(at: now.addingTimeInterval(-20 * hour))
+        let full = FastingSession(startTime: now.addingTimeInterval(-60 * hour), plannedHours: 16)
+        full.end(at: now.addingTimeInterval(-44 * hour))
+
+        #expect(abs(vm.weeklyAverageFastingHours(sessions: [broken, full], now: now) - 13) < 0.01)
+    }
+
+    @Test func onlyFastsThatReachTheGoalBuildTheStreak() {
+        let now = TestSupport.day(0, hour: 15)
+        let yesterday = FastingSession(startTime: TestSupport.day(-2, hour: 20, from: now), plannedHours: 16)
+        yesterday.end(at: TestSupport.day(-1, hour: 13, from: now))
+        let brokenToday = FastingSession(startTime: TestSupport.day(-1, hour: 20, from: now), plannedHours: 16)
+        brokenToday.end(at: TestSupport.day(0, hour: 8, from: now))
+
+        #expect(vm.consecutiveStreak(sessions: [yesterday, brokenToday], profile: nil, now: now) == 1)
+    }
+
+    @Test func endFromAnotherScreenFinishesFast() {
+        let fast = FastingSession(startTime: Date().addingTimeInterval(-17 * hour), plannedHours: 16)
+        context.insert(fast)
+        FastingViewModel.end(fast, modelContext: context)
+
+        #expect(fast.completed)
+        #expect(!fast.isActive)
+    }
+}

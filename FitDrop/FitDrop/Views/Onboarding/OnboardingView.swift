@@ -59,7 +59,7 @@ struct OnboardingView: View {
                         .font(.fdLargeTitle)
                         .foregroundColor(.white)
                 }
-                .padding(.vertical, FDSpacing.lg)
+                .padding(.vertical, FDSpacing.md)
 
                 // Content card
                 VStack {
@@ -67,9 +67,10 @@ struct OnboardingView: View {
                     Group {
                         switch vm.currentStep {
                         case 0: OnboardingStepName(vm: vm)
-                        case 1: OnboardingStepWeight(vm: vm)
-                        case 2: OnboardingStepDate(vm: vm)
-                        case 3: OnboardingStepActivity(vm: vm)
+                        case 1: OnboardingStepBody(vm: vm)
+                        case 2: OnboardingStepWeight(vm: vm)
+                        case 3: OnboardingStepDate(vm: vm)
+                        case 4: OnboardingStepActivity(vm: vm)
                         default: EmptyView()
                         }
                     }
@@ -165,7 +166,68 @@ struct OnboardingStepName: View {
     }
 }
 
-// MARK: - Step 2: Weight
+// MARK: - Step 2: About You
+
+struct OnboardingStepBody: View {
+    @ObservedObject var vm: OnboardingViewModel
+    @FocusState private var heightFocused: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: FDSpacing.lg) {
+            VStack(alignment: .leading, spacing: FDSpacing.sm) {
+                Text("About You")
+                    .font(.fdLargeTitle)
+                    .foregroundColor(.white)
+                Text("Used to calculate how many calories your body burns")
+                    .font(.fdBody)
+                    .foregroundColor(.white.opacity(0.8))
+            }
+
+            VStack(alignment: .leading, spacing: FDSpacing.sm) {
+                Text("SEX")
+                    .font(.fdCaption)
+                    .foregroundColor(.white.opacity(0.7))
+                    .tracking(1)
+                HStack(spacing: FDSpacing.sm) {
+                    ForEach(Sex.allCases, id: \.rawValue) { option in
+                        Button {
+                            vm.sex = option
+                            Haptics.selection()
+                        } label: {
+                            Text(option.displayName)
+                                .font(.fdHeadline)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                                .background(vm.sex == option ? .white : .white.opacity(0.15))
+                                .foregroundColor(vm.sex == option ? .fdGreen : .white)
+                                .clipShape(RoundedRectangle(cornerRadius: FDRadius.md))
+                        }
+                        .accessibilityAddTraits(vm.sex == option ? .isSelected : [])
+                    }
+                }
+            }
+
+            VStack(alignment: .leading, spacing: FDSpacing.sm) {
+                Text("AGE")
+                    .font(.fdCaption)
+                    .foregroundColor(.white.opacity(0.7))
+                    .tracking(1)
+                Stepper(value: $vm.age, in: 16...100) {
+                    Text("\(vm.age) years")
+                        .font(.fdTitle2)
+                        .foregroundColor(.white)
+                }
+                .colorScheme(.dark)
+            }
+
+            WeightInputField(label: "HEIGHT", value: $vm.heightCm, unit: "cm", focused: heightFocused)
+                .focused($heightFocused)
+        }
+        .padding(FDSpacing.xl)
+    }
+}
+
+// MARK: - Step 3: Weight
 
 struct OnboardingStepWeight: View {
     @ObservedObject var vm: OnboardingViewModel
@@ -201,10 +263,17 @@ struct OnboardingStepWeight: View {
                 .focused($focusedField, equals: .goal)
             }
 
-            if let cw = Double(vm.currentWeight), let gw = Double(vm.goalWeight), cw > 0, gw > 0 {
+            if let message = vm.weightValidationMessage {
+                Label(message, systemImage: "exclamationmark.circle.fill")
+                    .font(.fdSubheadline)
+                    .foregroundColor(.white)
+                    .padding(FDSpacing.sm)
+                    .background(Color.fdOrange.opacity(0.6))
+                    .clipShape(RoundedRectangle(cornerRadius: FDRadius.sm))
+            } else if vm.weightToLose > 0 {
                 HStack {
                     Image(systemName: "arrow.down.circle.fill")
-                    Text("Goal: lose \(String(format: "%.1f", max(0, cw - gw))) kg")
+                    Text("Goal: lose \(NumberFormatting.decimal(vm.weightToLose)) kg")
                 }
                 .font(.fdSubheadline)
                 .foregroundColor(.white.opacity(0.9))
@@ -242,7 +311,7 @@ struct WeightInputField: View {
     }
 }
 
-// MARK: - Step 3: Goal Date
+// MARK: - Step 4: Goal Date
 
 struct OnboardingStepDate: View {
     @ObservedObject var vm: OnboardingViewModel
@@ -261,24 +330,32 @@ struct OnboardingStepDate: View {
             DatePicker(
                 "",
                 selection: $vm.goalDate,
-                in: Date().addingTimeInterval(86400 * 7)...,
+                in: Date().addingTimeInterval(86400 * 14)...,
                 displayedComponents: .date
             )
             .datePickerStyle(.wheel)
             .colorScheme(.dark)
             .labelsHidden()
 
-            if !vm.currentWeight.isEmpty, !vm.goalWeight.isEmpty {
+            if vm.weightToLose > 0 {
                 VStack(alignment: .leading, spacing: FDSpacing.sm) {
                     HStack {
-                        Image(systemName: "flame.fill").foregroundColor(.fdOrange)
-                        Text("Daily target: ~\(vm.estimatedCalories) kcal")
+                        Image(systemName: "chart.line.downtrend.xyaxis").foregroundColor(.white)
+                        Text("That's \(NumberFormatting.decimal(vm.requiredWeeklyLoss, maxFractionDigits: 2)) kg per week")
                             .font(.fdSubheadline)
                             .foregroundColor(.white)
                     }
-                    Text("Based on your weight and goal date")
-                        .font(.fdCaption)
-                        .foregroundColor(.white.opacity(0.7))
+                    if vm.requiredWeeklyLoss > 1 {
+                        Text("Faster than the 0.5–1 kg/week experts recommend. We'll cap your deficit at a safe level, so it may take a little longer.")
+                            .font(.fdCaption)
+                            .foregroundColor(.white.opacity(0.85))
+                        Button("Use a sustainable date") {
+                            vm.goalDate = vm.recommendedGoalDate
+                        }
+                        .font(.fdCaption.weight(.semibold))
+                        .foregroundColor(.white)
+                        .underline()
+                    }
                 }
                 .padding(FDSpacing.md)
                 .background(.white.opacity(0.15))
@@ -289,7 +366,7 @@ struct OnboardingStepDate: View {
     }
 }
 
-// MARK: - Step 4: Activity Level
+// MARK: - Step 5: Activity Level
 
 struct OnboardingStepActivity: View {
     @ObservedObject var vm: OnboardingViewModel
@@ -316,9 +393,9 @@ struct OnboardingStepActivity: View {
                 }
             }
 
-            if !vm.currentWeight.isEmpty {
+            if vm.currentWeightDouble != nil {
                 HStack {
-                    Image(systemName: "checkmark.circle.fill").foregroundColor(.fdGreen)
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(.white)
                     Text("Daily target: ~\(vm.estimatedCalories) kcal")
                         .font(.fdSubheadline)
                         .foregroundColor(.white)

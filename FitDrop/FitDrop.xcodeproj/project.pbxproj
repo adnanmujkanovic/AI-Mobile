@@ -7,8 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		141BA62ED73F341AD5274B6E /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E8C2C9A058FD67CAEC9249 /* HealthKitManager.swift */; };
+		208188F567B856E3D8981415 /* FoodTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716A2F5DE704115F805533E7 /* FoodTests.swift */; };
+		336ECEFAA94682BD7A3E3F80 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2973E820DEC886B90923E93 /* Haptics.swift */; };
+		36A279F1E8CCB16A4F4C28CB /* RunningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1682151515D32BABA003CA5 /* RunningTests.swift */; };
+		3834BBFA138626FFE6D64961 /* ProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188F1EA47383D7C44D573BBD /* ProgressTests.swift */; };
+		3C502BA629C7013E62C88E96 /* DataExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C2B118468582B54A424ADE /* DataExporter.swift */; };
+		408FF947651D2F0AEFB616BB /* FastingLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0602A3D307456BFF500BEF2 /* FastingLiveActivity.swift */; };
+		4A277CC7A2031EDF0A4494A5 /* TestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0056FDD7B40A907B7FBAD122 /* TestSupport.swift */; };
+		5D44A966A1E725996778F187 /* NumberFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565F6D0731930911039661F7 /* NumberFormatting.swift */; };
 		610D8F7C7C5B127CC55F2A23 /* WorkoutTimingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B66D50AE37CB1D75D5129E2 /* WorkoutTimingTests.swift */; };
 		88A33FC5A7F6499E636A7548 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF1695211DA83276F71D178 /* Foundation.framework */; };
+		9C8564DB7C39E706D3F66E97 /* Streaks.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20EDA1544D4E78B8C1C8BCB /* Streaks.swift */; };
 		9CAAC383737D50F00F181618 /* CalorieCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC4A8AB23323D75DA4100711 /* CalorieCalculatorTests.swift */; };
 		AA000001 /* FitDropApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000001 /* FitDropApp.swift */; };
 		AA000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000002 /* ContentView.swift */; };
@@ -39,7 +49,11 @@
 		AA000027 /* FastingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000027 /* FastingView.swift */; };
 		AA000028 /* FastingHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000028 /* FastingHistoryView.swift */; };
 		AA000029 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB000029 /* Assets.xcassets */; };
+		AAE6DBD26D757D7BDE1C6756 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9B8666BB923FF270854E18 /* SettingsView.swift */; };
+		B19C8210F90758C97A4BEB09 /* WaterLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBA3A69212C0BA4139ACAF1 /* WaterLog.swift */; };
+		D33644AAE51E5A626F22302B /* FastingActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E32F0548E4C3E1EEE8CBE34 /* FastingActivityAttributes.swift */; };
 		DC52A34CF31F490908DB475D /* FastingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F665253D343205FC96436135 /* FastingTests.swift */; };
+		FE0D40B607FD859C58BA319C /* OFFFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2891F17129C26ACD2616662A /* OFFFixtures.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,9 +67,21 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0056FDD7B40A907B7FBAD122 /* TestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestSupport.swift; sourceTree = "<group>"; };
+		188F1EA47383D7C44D573BBD /* ProgressTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressTests.swift; sourceTree = "<group>"; };
+		19E8C2C9A058FD67CAEC9249 /* HealthKitManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		1EBA3A69212C0BA4139ACAF1 /* WaterLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WaterLog.swift; sourceTree = "<group>"; };
 		270B4B76CCC40F3B83E1A6C0 /* FitDropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitDropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2891F17129C26ACD2616662A /* OFFFixtures.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OFFFixtures.swift; sourceTree = "<group>"; };
 		2B66D50AE37CB1D75D5129E2 /* WorkoutTimingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WorkoutTimingTests.swift; sourceTree = "<group>"; };
+		3A5DFD2AD7DC92570F164CFB /* FitDrop.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = FitDrop.entitlements; sourceTree = "<group>"; };
 		3AF1695211DA83276F71D178 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		565F6D0731930911039661F7 /* NumberFormatting.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NumberFormatting.swift; sourceTree = "<group>"; };
+		6E32F0548E4C3E1EEE8CBE34 /* FastingActivityAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FastingActivityAttributes.swift; sourceTree = "<group>"; };
+		70C2B118468582B54A424ADE /* DataExporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DataExporter.swift; sourceTree = "<group>"; };
+		716A2F5DE704115F805533E7 /* FoodTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FoodTests.swift; sourceTree = "<group>"; };
+		A2973E820DEC886B90923E93 /* Haptics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
+		AE9B8666BB923FF270854E18 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		BB000001 /* FitDropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitDropApp.swift; sourceTree = "<group>"; };
 		BB000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BB000003 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
@@ -87,6 +113,9 @@
 		BB000029 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BB000030 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CC000001 /* FitDrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitDrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0602A3D307456BFF500BEF2 /* FastingLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FastingLiveActivity.swift; sourceTree = "<group>"; };
+		D1682151515D32BABA003CA5 /* RunningTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RunningTests.swift; sourceTree = "<group>"; };
+		D20EDA1544D4E78B8C1C8BCB /* Streaks.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Streaks.swift; sourceTree = "<group>"; };
 		F665253D343205FC96436135 /* FastingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FastingTests.swift; sourceTree = "<group>"; };
 		FC4A8AB23323D75DA4100711 /* CalorieCalculatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalorieCalculatorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -116,6 +145,11 @@
 				FC4A8AB23323D75DA4100711 /* CalorieCalculatorTests.swift */,
 				F665253D343205FC96436135 /* FastingTests.swift */,
 				2B66D50AE37CB1D75D5129E2 /* WorkoutTimingTests.swift */,
+				716A2F5DE704115F805533E7 /* FoodTests.swift */,
+				2891F17129C26ACD2616662A /* OFFFixtures.swift */,
+				188F1EA47383D7C44D573BBD /* ProgressTests.swift */,
+				D1682151515D32BABA003CA5 /* RunningTests.swift */,
+				0056FDD7B40A907B7FBAD122 /* TestSupport.swift */,
 			);
 			name = FitDropTests;
 			path = FitDropTests;
@@ -137,6 +171,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		E1277D2A42A67F771B74E2C7 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				AE9B8666BB923FF270854E18 /* SettingsView.swift */,
+			);
+			name = Settings;
+			path = Settings;
+			sourceTree = "<group>";
+		};
 		EE000001 /* FitDrop */ = {
 			isa = PBXGroup;
 			children = (
@@ -149,6 +192,7 @@
 				EE000004 /* ViewModels */,
 				EE000005 /* Services */,
 				EE000006 /* Utilities */,
+				3A5DFD2AD7DC92570F164CFB /* FitDrop.entitlements */,
 			);
 			path = FitDrop;
 			sourceTree = "<group>";
@@ -161,6 +205,7 @@
 				BB000005 /* FoodEntry.swift */,
 				BB000006 /* FastingSession.swift */,
 				BB000007 /* RunSession.swift */,
+				1EBA3A69212C0BA4139ACAF1 /* WaterLog.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -174,6 +219,7 @@
 				EE000010 /* Running */,
 				EE000011 /* Dashboard */,
 				EE000012 /* Fasting */,
+				E1277D2A42A67F771B74E2C7 /* Settings */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -196,6 +242,9 @@
 			children = (
 				BB000010 /* OpenFoodFactsService.swift */,
 				BB000011 /* NotificationManager.swift */,
+				D0602A3D307456BFF500BEF2 /* FastingLiveActivity.swift */,
+				70C2B118468582B54A424ADE /* DataExporter.swift */,
+				19E8C2C9A058FD67CAEC9249 /* HealthKitManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -205,6 +254,9 @@
 			children = (
 				BB000008 /* DesignSystem.swift */,
 				BB000009 /* CalorieCalculator.swift */,
+				A2973E820DEC886B90923E93 /* Haptics.swift */,
+				565F6D0731930911039661F7 /* NumberFormatting.swift */,
+				D20EDA1544D4E78B8C1C8BCB /* Streaks.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -262,6 +314,15 @@
 			path = Fasting;
 			sourceTree = "<group>";
 		};
+		F733AF49D581716929BB9CA9 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				6E32F0548E4C3E1EEE8CBE34 /* FastingActivityAttributes.swift */,
+			);
+			name = Shared;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		FF000000 = {
 			isa = PBXGroup;
 			children = (
@@ -269,6 +330,7 @@
 				FF000001 /* Products */,
 				9B808A05CF98E1F7AF0A6838 /* Frameworks */,
 				4BAE0D363F559F7A1538F438 /* FitDropTests */,
+				F733AF49D581716929BB9CA9 /* Shared */,
 			);
 			sourceTree = "<group>";
 		};
@@ -379,6 +441,11 @@
 				9CAAC383737D50F00F181618 /* CalorieCalculatorTests.swift in Sources */,
 				DC52A34CF31F490908DB475D /* FastingTests.swift in Sources */,
 				610D8F7C7C5B127CC55F2A23 /* WorkoutTimingTests.swift in Sources */,
+				208188F567B856E3D8981415 /* FoodTests.swift in Sources */,
+				FE0D40B607FD859C58BA319C /* OFFFixtures.swift in Sources */,
+				3834BBFA138626FFE6D64961 /* ProgressTests.swift in Sources */,
+				36A279F1E8CCB16A4F4C28CB /* RunningTests.swift in Sources */,
+				4A277CC7A2031EDF0A4494A5 /* TestSupport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -414,6 +481,15 @@
 				AA000026 /* DashboardView.swift in Sources */,
 				AA000027 /* FastingView.swift in Sources */,
 				AA000028 /* FastingHistoryView.swift in Sources */,
+				B19C8210F90758C97A4BEB09 /* WaterLog.swift in Sources */,
+				336ECEFAA94682BD7A3E3F80 /* Haptics.swift in Sources */,
+				5D44A966A1E725996778F187 /* NumberFormatting.swift in Sources */,
+				408FF947651D2F0AEFB616BB /* FastingLiveActivity.swift in Sources */,
+				9C8564DB7C39E706D3F66E97 /* Streaks.swift in Sources */,
+				D33644AAE51E5A626F22302B /* FastingActivityAttributes.swift in Sources */,
+				3C502BA629C7013E62C88E96 /* DataExporter.swift in Sources */,
+				141BA62ED73F341AD5274B6E /* HealthKitManager.swift in Sources */,
+				AAE6DBD26D757D7BDE1C6756 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,7 +513,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fitdrop.appTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adnanmujkanovic.fitdrop.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
@@ -455,7 +531,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fitdrop.appTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adnanmujkanovic.fitdrop.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
@@ -587,6 +663,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FitDrop/FitDrop.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -599,7 +676,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fitdrop.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adnanmujkanovic.fitdrop;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -612,6 +689,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FitDrop/FitDrop.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -624,7 +702,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fitdrop.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adnanmujkanovic.fitdrop;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

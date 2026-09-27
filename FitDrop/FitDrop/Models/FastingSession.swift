@@ -48,10 +48,38 @@ final class FastingSession {
         return max(0, target - elapsedSeconds)
     }
 
+    /// Ends the fast, folding any in-progress pause into the paused total.
+    func end(at end: Date = Date()) {
+        if isPaused, let pausedAt {
+            totalPausedSeconds += max(0, end.timeIntervalSince(pausedAt))
+            isPaused = false
+            self.pausedAt = nil
+        }
+        endTime = end
+        actualHours = elapsedHours
+        completed = actualHours >= Double(plannedHours)
+        brokenEarly = !completed
+        isActive = false
+    }
+
+    var isFinished: Bool { !isActive && endTime != nil }
+
     var progressFraction: Double {
         let target = Double(plannedHours) * 3600
         return min(1.0, elapsedSeconds / target)
     }
+
+    /// Start time shifted by all pauses, so `now - effectiveStart` is the fasting time.
+    var effectiveStart: Date {
+        startTime.addingTimeInterval(totalPausedSeconds)
+    }
+
+    /// When the planned duration is reached, assuming no further pauses.
+    var goalDate: Date {
+        effectiveStart.addingTimeInterval(Double(plannedHours) * 3600)
+    }
+
+    var goalReached: Bool { elapsedSeconds >= Double(plannedHours) * 3600 }
 
     var fastingStage: FastingStage {
         FastingStage.forHours(elapsedHours)

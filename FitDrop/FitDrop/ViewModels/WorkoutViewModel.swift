@@ -22,6 +22,11 @@ class WorkoutViewModel: ObservableObject {
     @Published var sessionCompleted: Bool = false
     @Published var totalCaloriesBurned: Int = 0
     @Published var isPaused: Bool = false
+    /// All treadmill intervals have run out
+    @Published var treadmillFinished: Bool = false
+    // Countdown for timed exercises such as planks
+    @Published var isHolding: Bool = false
+    @Published var holdRemainingSeconds: Int = 0
 
     // Timing is derived from dates, so it stays correct while the app is suspended.
     private var ticker: Timer? = nil
@@ -29,6 +34,7 @@ class WorkoutViewModel: ObservableObject {
     private var accumulatedSeconds: TimeInterval = 0
     private var intervalEndsAt: Date? = nil
     private var restEndsAt: Date? = nil
+    private var holdEndsAt: Date? = nil
     /// Clock source; tests replace it to control time.
     var now: () -> Date = Date.init
     private var audioPlayer: AVAudioPlayer? = nil
@@ -40,6 +46,7 @@ class WorkoutViewModel: ObservableObject {
 
     func startTreadmillSession(_ workout: TreadmillWorkout) {
         selectedTreadmillWorkout = workout
+        selectedMatWorkout = nil
         resetSession()
         isSessionActive = true
         beginBackgroundTask()
@@ -49,6 +56,7 @@ class WorkoutViewModel: ObservableObject {
 
     func startMatSession(_ workout: MatWorkout) {
         selectedMatWorkout = workout
+        selectedTreadmillWorkout = nil
         resetSession()
         isSessionActive = true
         beginBackgroundTask()
@@ -64,6 +72,7 @@ class WorkoutViewModel: ObservableObject {
         runningSince = nil
         intervalEndsAt = nil
         restEndsAt = nil
+        holdEndsAt = nil
         ticker?.invalidate()
         isPaused = true
     }
@@ -79,6 +88,9 @@ class WorkoutViewModel: ObservableObject {
         if isResting {
             restEndsAt = now.addingTimeInterval(TimeInterval(restRemainingSeconds))
         }
+        if isHolding {
+            holdEndsAt = now.addingTimeInterval(TimeInterval(holdRemainingSeconds))
+        }
         startTicker()
     }
 
@@ -89,14 +101,12 @@ class WorkoutViewModel: ObservableObject {
         isSessionActive = false
         endBackgroundTask()
 
-        let calories: Int
-        if let tw = selectedTreadmillWorkout {
-            calories = Int(Double(tw.estimatedCalories) * (userWeightKg / 70.0))
-        } else if let mw = selectedMatWorkout {
-            calories = Int(Double(mw.estimatedCalories) * (userWeightKg / 70.0))
-        } else {
-            calories = 200
-        }
+        let calories = Self.caloriesBurned(
+            baseCalories: selectedTreadmillWorkout?.estimatedCalories ?? selectedMatWorkout?.estimatedCalories ?? 200,
+            plannedSeconds: plannedSeconds,
+            elapsedSeconds: sessionElapsedSeconds,
+            userWeightKg: userWeightKg
+        )
         totalCaloriesBurned = calories
 
         let name = selectedTreadmillWorkout?.name ?? selectedMatWorkout?.name ?? "Workout"
@@ -109,10 +119,43 @@ class WorkoutViewModel: ObservableObject {
         )
         session.completed = true
         modelContext.insert(session)
-        try? modelContext.save()
+        modelContext.saveOrLog()
         sessionCompleted = true
+        Haptics.success()
+
+        let end = now()
+        HealthKitManager.shared.saveWorkout(
+            name: name,
+            isRun: type == "treadmill",
+            start: end.addingTimeInterval(-Double(sessionElapsedSeconds)),
+            end: end,
+            calories: Double(calories)
+        )
     }
-    
+
+    /// Discards the running session without saving it.
+    func cancelSession() {
+        ticker?.invalidate()
+        runningSince = nil
+        isSessionActive = false
+        endBackgroundTask()
+        resetSession()
+    }
+
+    /// Planned length of the selected workout, used to scale calories to the time actually spent.
+    var plannedSeconds: Int {
+        if let tw = selectedTreadmillWorkout { return tw.intervals.reduce(0) { $0 + $1.durationSeconds } }
+        if let mw = selectedMatWorkout { return mw.estimatedMinutes * 60 }
+        return 0
+    }
+
+    /// Scales a workout's calories (quoted for 70 kg) by body weight and by the share of the workout done.
+    static func caloriesBurned(baseCalories: Int, plannedSeconds: Int, elapsedSeconds: Int, userWeightKg: Double) -> Int {
+        let weightFactor = (userWeightKg > 0 ? userWeightKg : 70) / 70.0
+        let completion = plannedSeconds > 0 ? min(1.0, Double(elapsedSeconds) / Double(plannedSeconds)) : 1.0
+        return Int((Double(baseCalories) * weightFactor * completion).rounded())
+    }
+
     // MARK: - Background Task Support
     
     private func beginBackgroundTask() {
@@ -145,7 +188,25 @@ class WorkoutViewModel: ObservableObject {
         if currentIntervalIndex < workout.intervals.count - 1 {
             currentIntervalIndex += 1
             startCurrentInterval()
+            Haptics.tap()
+        } else {
+            finishIntervals()
         }
+    }
+
+    private func finishIntervals() {
+        intervalEndsAt = nil
+        intervalRemainingSeconds = 0
+        if !treadmillFinished {
+            treadmillFinished = true
+            playAudioCue()
+            Haptics.success()
+        }
+    }
+
+    var nextIntervalPreview: WorkoutInterval? {
+        guard let workout = selectedTreadmillWorkout, currentIntervalIndex + 1 < workout.intervals.count else { return nil }
+        return workout.intervals[currentIntervalIndex + 1]
     }
 
     var currentInterval: WorkoutInterval? {
@@ -193,9 +254,31 @@ class WorkoutViewModel: ObservableObject {
     // MARK: - Rest Timer
 
     private func startRest(seconds: Int) {
+        stopHold()
         isResting = true
         restRemainingSeconds = seconds
         restEndsAt = isPaused ? nil : now().addingTimeInterval(TimeInterval(seconds))
+    }
+
+    func skipRest() {
+        isResting = false
+        restEndsAt = nil
+        restRemainingSeconds = 0
+    }
+
+    // MARK: - Hold Timer
+
+    func startHold(seconds: Int) {
+        isHolding = true
+        holdRemainingSeconds = seconds
+        holdEndsAt = isPaused ? nil : now().addingTimeInterval(TimeInterval(seconds))
+        Haptics.tap()
+    }
+
+    func stopHold() {
+        isHolding = false
+        holdEndsAt = nil
+        holdRemainingSeconds = 0
     }
 
     // MARK: - Session Clock
@@ -218,8 +301,15 @@ class WorkoutViewModel: ObservableObject {
         let running = runningSince.map { now.timeIntervalSince($0) } ?? 0
         sessionElapsedSeconds = Int(accumulatedSeconds + running)
 
-        if let intervalEndsAt {
-            intervalRemainingSeconds = secondsRemaining(until: intervalEndsAt, from: now)
+        advanceIntervals(at: now)
+        if isHolding, let holdEndsAt {
+            holdRemainingSeconds = secondsRemaining(until: holdEndsAt, from: now)
+            if holdRemainingSeconds == 0 {
+                isHolding = false
+                self.holdEndsAt = nil
+                playAudioCue()
+                Haptics.success()
+            }
         }
         if isResting, let restEndsAt {
             restRemainingSeconds = secondsRemaining(until: restEndsAt, from: now)
@@ -228,6 +318,28 @@ class WorkoutViewModel: ObservableObject {
                 self.restEndsAt = nil
                 playAudioCue()
             }
+        }
+    }
+
+    /// Moves through every interval that has ended, so time spent in the background is caught up.
+    private func advanceIntervals(at now: Date) {
+        guard let workout = selectedTreadmillWorkout, var endsAt = intervalEndsAt else { return }
+        var advanced = false
+        while endsAt <= now {
+            if currentIntervalIndex < workout.intervals.count - 1 {
+                currentIntervalIndex += 1
+                endsAt = endsAt.addingTimeInterval(TimeInterval(workout.intervals[currentIntervalIndex].durationSeconds))
+                advanced = true
+            } else {
+                finishIntervals()
+                return
+            }
+        }
+        intervalEndsAt = endsAt
+        intervalRemainingSeconds = secondsRemaining(until: endsAt, from: now)
+        if advanced {
+            playAudioCue()
+            Haptics.tap()
         }
     }
 
@@ -250,6 +362,10 @@ class WorkoutViewModel: ObservableObject {
         runningSince = nil
         intervalEndsAt = nil
         restEndsAt = nil
+        holdEndsAt = nil
+        isHolding = false
+        holdRemainingSeconds = 0
+        treadmillFinished = false
     }
 
     var formattedSessionTime: String {

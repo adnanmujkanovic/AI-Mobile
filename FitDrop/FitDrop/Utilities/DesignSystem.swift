@@ -7,6 +7,7 @@ extension Color {
     static let fdBackground = Color(UIColor.systemBackground)
     static let fdSecondaryBackground = Color(UIColor.secondarySystemBackground)
     static let fdGroupedBackground = Color(UIColor.systemGroupedBackground)
+    static let fdCardBackground = Color(UIColor.secondarySystemGroupedBackground)
     static let fdLabel = Color(UIColor.label)
     static let fdSecondaryLabel = Color(UIColor.secondaryLabel)
     static let fdTertiaryLabel = Color(UIColor.tertiaryLabel)
@@ -69,8 +70,8 @@ enum FDRadius {
 struct FDCard: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .background(Color.fdSecondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: FDRadius.card))
+            .background(Color.fdCardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: FDRadius.card, style: .continuous))
     }
 }
 
@@ -152,7 +153,7 @@ struct FDProgressRing: View {
     let color: Color
     let backgroundColor: Color
 
-    init(progress: Double, lineWidth: CGFloat = 12, color: Color = .fdGreen, backgroundColor: Color = .fdSecondaryBackground) {
+    init(progress: Double, lineWidth: CGFloat = 12, color: Color = .fdGreen, backgroundColor: Color = Color.fdSecondaryLabel.opacity(0.15)) {
         self.progress = min(max(progress, 0), 1)
         self.lineWidth = lineWidth
         self.color = color
@@ -171,7 +172,7 @@ struct FDProgressRing: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Progress")
-        .accessibilityValue("\(Int(progress * 100)) percent")
+        .accessibilityValue("\(Int((progress * 100).rounded())) percent")
     }
 }
 
