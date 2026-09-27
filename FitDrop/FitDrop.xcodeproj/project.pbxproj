@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		610D8F7C7C5B127CC55F2A23 /* WorkoutTimingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B66D50AE37CB1D75D5129E2 /* WorkoutTimingTests.swift */; };
+		88A33FC5A7F6499E636A7548 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF1695211DA83276F71D178 /* Foundation.framework */; };
+		9CAAC383737D50F00F181618 /* CalorieCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC4A8AB23323D75DA4100711 /* CalorieCalculatorTests.swift */; };
 		AA000001 /* FitDropApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000001 /* FitDropApp.swift */; };
 		AA000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000002 /* ContentView.swift */; };
 		AA000003 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000003 /* UserProfile.swift */; };
@@ -36,9 +39,23 @@
 		AA000027 /* FastingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000027 /* FastingView.swift */; };
 		AA000028 /* FastingHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000028 /* FastingHistoryView.swift */; };
 		AA000029 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB000029 /* Assets.xcassets */; };
+		DC52A34CF31F490908DB475D /* FastingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F665253D343205FC96436135 /* FastingTests.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		EC225174D41EE1D5504502F4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = PP000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = TT000001;
+			remoteInfo = FitDrop;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		270B4B76CCC40F3B83E1A6C0 /* FitDropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitDropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B66D50AE37CB1D75D5129E2 /* WorkoutTimingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WorkoutTimingTests.swift; sourceTree = "<group>"; };
+		3AF1695211DA83276F71D178 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		BB000001 /* FitDropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitDropApp.swift; sourceTree = "<group>"; };
 		BB000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BB000003 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
@@ -70,9 +87,19 @@
 		BB000029 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BB000030 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CC000001 /* FitDrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitDrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F665253D343205FC96436135 /* FastingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FastingTests.swift; sourceTree = "<group>"; };
+		FC4A8AB23323D75DA4100711 /* CalorieCalculatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalorieCalculatorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1B36788147E4BF0408D15C05 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88A33FC5A7F6499E636A7548 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DD000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -83,6 +110,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4BAE0D363F559F7A1538F438 /* FitDropTests */ = {
+			isa = PBXGroup;
+			children = (
+				FC4A8AB23323D75DA4100711 /* CalorieCalculatorTests.swift */,
+				F665253D343205FC96436135 /* FastingTests.swift */,
+				2B66D50AE37CB1D75D5129E2 /* WorkoutTimingTests.swift */,
+			);
+			name = FitDropTests;
+			path = FitDropTests;
+			sourceTree = "<group>";
+		};
+		868033369B848E5299B9C9EA /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				3AF1695211DA83276F71D178 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		9B808A05CF98E1F7AF0A6838 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				868033369B848E5299B9C9EA /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		EE000001 /* FitDrop */ = {
 			isa = PBXGroup;
 			children = (
@@ -208,25 +262,46 @@
 			path = Fasting;
 			sourceTree = "<group>";
 		};
-		FF000001 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				CC000001 /* FitDrop.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		FF000000 /* Root */ = {
+		FF000000 = {
 			isa = PBXGroup;
 			children = (
 				EE000001 /* FitDrop */,
 				FF000001 /* Products */,
+				9B808A05CF98E1F7AF0A6838 /* Frameworks */,
+				4BAE0D363F559F7A1538F438 /* FitDropTests */,
 			);
+			sourceTree = "<group>";
+		};
+		FF000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC000001 /* FitDrop.app */,
+				270B4B76CCC40F3B83E1A6C0 /* FitDropTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1FB8219D1AAF32FEC566DF86 /* FitDropTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F2AB4B82A41D242DDE93ABFE /* Build configuration list for PBXNativeTarget "FitDropTests" */;
+			buildPhases = (
+				782A27752547609E30792276 /* Sources */,
+				1B36788147E4BF0408D15C05 /* Frameworks */,
+				05089589E9DDBFA7138AFEA5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0282B7093938C856DEF29A36 /* PBXTargetDependency */,
+			);
+			name = FitDropTests;
+			productName = FitDropTests;
+			productReference = 270B4B76CCC40F3B83E1A6C0 /* FitDropTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		TT000001 /* FitDrop */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = XX000001 /* Build configuration list for PBXNativeTarget "FitDrop" */;
@@ -267,17 +342,25 @@
 				en,
 				Base,
 			);
-			mainGroup = FF000000 /* Root */;
+			mainGroup = FF000000;
 			productRefGroup = FF000001 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				TT000001 /* FitDrop */,
+				1FB8219D1AAF32FEC566DF86 /* FitDropTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		05089589E9DDBFA7138AFEA5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		UU000002 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -289,6 +372,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		782A27752547609E30792276 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9CAAC383737D50F00F181618 /* CalorieCalculatorTests.swift in Sources */,
+				DC52A34CF31F490908DB475D /* FastingTests.swift in Sources */,
+				610D8F7C7C5B127CC55F2A23 /* WorkoutTimingTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		UU000001 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -326,7 +419,51 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		0282B7093938C856DEF29A36 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = FitDrop;
+			target = TT000001 /* FitDrop */;
+			targetProxy = EC225174D41EE1D5504502F4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		5A6A69F69B306959D3CCE5F2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fitdrop.appTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FitDrop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FitDrop";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		FC829608783C602E0475CD15 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fitdrop.appTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FitDrop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FitDrop";
+			};
+			name = Debug;
+		};
 		VV000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -498,6 +635,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F2AB4B82A41D242DDE93ABFE /* Build configuration list for PBXNativeTarget "FitDropTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A6A69F69B306959D3CCE5F2 /* Release */,
+				FC829608783C602E0475CD15 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		XX000001 /* Build configuration list for PBXNativeTarget "FitDrop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -517,7 +663,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
 	};
 	rootObject = PP000001 /* Project object */;
 }
