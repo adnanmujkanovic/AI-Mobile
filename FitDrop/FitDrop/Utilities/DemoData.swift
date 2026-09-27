@@ -19,6 +19,12 @@ enum DemoData {
         }
     }
 
+    /// `-FitDropReset YES` wipes everything first, e.g. for UI tests of onboarding.
+    static func resetIfRequested(_ context: ModelContext) {
+        guard UserDefaults.standard.bool(forKey: "FitDropReset") else { return }
+        try? DataExporter.deleteAll(context: context)
+    }
+
     static func seedIfNeeded(_ context: ModelContext) {
         guard isRequested, (try? context.fetchCount(FetchDescriptor<UserProfile>())) == 0 else { return }
         let calendar = Calendar.current
@@ -65,7 +71,7 @@ enum DemoData {
             context.insert(SavedFood(from: first))
         }
 
-        for amount in [500, 250, 250, 500] { context.insert(WaterLog(date: now.addingTimeInterval(-3600), amountMl: amount)) }
+        for amount in [500, 250, 250, 500] { context.insert(WaterLog(date: now, amountMl: amount)) }
 
         for d in [1, 2, 3, 5, 6] {
             let fast = FastingSession(startTime: daysAgo(d + 1, hour: 20), plannedHours: 16)

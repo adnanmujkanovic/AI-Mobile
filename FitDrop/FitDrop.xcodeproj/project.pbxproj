@@ -24,6 +24,7 @@
 		88A33FC5A7F6499E636A7548 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF1695211DA83276F71D178 /* Foundation.framework */; };
 		9C8564DB7C39E706D3F66E97 /* Streaks.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20EDA1544D4E78B8C1C8BCB /* Streaks.swift */; };
 		9CAAC383737D50F00F181618 /* CalorieCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC4A8AB23323D75DA4100711 /* CalorieCalculatorTests.swift */; };
+		9E358C4F3894F2FB849B2BDE /* FitDropUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2916DD4E502D1E90E2A20A8C /* FitDropUITests.swift */; };
 		AA000001 /* FitDropApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000001 /* FitDropApp.swift */; };
 		AA000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000002 /* ContentView.swift */; };
 		AA000003 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000003 /* UserProfile.swift */; };
@@ -58,6 +59,7 @@
 		B19C8210F90758C97A4BEB09 /* WaterLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBA3A69212C0BA4139ACAF1 /* WaterLog.swift */; };
 		D33644AAE51E5A626F22302B /* FastingActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E32F0548E4C3E1EEE8CBE34 /* FastingActivityAttributes.swift */; };
 		DC52A34CF31F490908DB475D /* FastingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F665253D343205FC96436135 /* FastingTests.swift */; };
+		DDA3195DE2705D4F6AB44348 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF1695211DA83276F71D178 /* Foundation.framework */; };
 		F569049D737C4A049F3DCBB8 /* FastingActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E32F0548E4C3E1EEE8CBE34 /* FastingActivityAttributes.swift */; };
 		FE0D40B607FD859C58BA319C /* OFFFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2891F17129C26ACD2616662A /* OFFFixtures.swift */; };
 /* End PBXBuildFile section */
@@ -69,6 +71,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2EA0F0EEBBDACC255C65DECF;
 			remoteInfo = FitDropWidgets;
+		};
+		8E0E4F25FD2F214188FE4277 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = PP000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = TT000001;
+			remoteInfo = FitDrop;
 		};
 		EC225174D41EE1D5504502F4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -101,6 +110,7 @@
 		1EBA3A69212C0BA4139ACAF1 /* WaterLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WaterLog.swift; sourceTree = "<group>"; };
 		270B4B76CCC40F3B83E1A6C0 /* FitDropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitDropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2891F17129C26ACD2616662A /* OFFFixtures.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OFFFixtures.swift; sourceTree = "<group>"; };
+		2916DD4E502D1E90E2A20A8C /* FitDropUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FitDropUITests.swift; sourceTree = "<group>"; };
 		2B66D50AE37CB1D75D5129E2 /* WorkoutTimingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WorkoutTimingTests.swift; sourceTree = "<group>"; };
 		3A5DFD2AD7DC92570F164CFB /* FitDrop.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = FitDrop.entitlements; sourceTree = "<group>"; };
 		3AF1695211DA83276F71D178 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -112,6 +122,7 @@
 		716A2F5DE704115F805533E7 /* FoodTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FoodTests.swift; sourceTree = "<group>"; };
 		90D524E78A76ED14830D9A76 /* FitDropWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FitDropWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2973E820DEC886B90923E93 /* Haptics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
+		A6DF7299317C0DC3ECEE8BF2 /* FitDropUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitDropUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE9B8666BB923FF270854E18 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		BB000001 /* FitDropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitDropApp.swift; sourceTree = "<group>"; };
 		BB000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -158,6 +169,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				88A33FC5A7F6499E636A7548 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49AE0B2AE889E83F4A79CB10 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DDA3195DE2705D4F6AB44348 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,6 +248,15 @@
 			);
 			name = Settings;
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		ED64408788FFE2BD1711FAB1 /* FitDropUITests */ = {
+			isa = PBXGroup;
+			children = (
+				2916DD4E502D1E90E2A20A8C /* FitDropUITests.swift */,
+			);
+			name = FitDropUITests;
+			path = FitDropUITests;
 			sourceTree = "<group>";
 		};
 		EE000001 /* FitDrop */ = {
@@ -384,6 +412,7 @@
 				4BAE0D363F559F7A1538F438 /* FitDropTests */,
 				F733AF49D581716929BB9CA9 /* Shared */,
 				12C23E0F6701448B87C1FEB5 /* FitDropWidgets */,
+				ED64408788FFE2BD1711FAB1 /* FitDropUITests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -393,6 +422,7 @@
 				CC000001 /* FitDrop.app */,
 				270B4B76CCC40F3B83E1A6C0 /* FitDropTests.xctest */,
 				90D524E78A76ED14830D9A76 /* FitDropWidgets.appex */,
+				A6DF7299317C0DC3ECEE8BF2 /* FitDropUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -434,6 +464,24 @@
 			productName = FitDropWidgets;
 			productReference = 90D524E78A76ED14830D9A76 /* FitDropWidgets.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		6A56FE8EC14209B62EEFA854 /* FitDropUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84F3A71DECF822355F40B570 /* Build configuration list for PBXNativeTarget "FitDropUITests" */;
+			buildPhases = (
+				092014C2903E43DE2303F82C /* Sources */,
+				49AE0B2AE889E83F4A79CB10 /* Frameworks */,
+				250A26DACEF3B68599C2E6C7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9D8830CCC3DF3281B9042C48 /* PBXTargetDependency */,
+			);
+			name = FitDropUITests;
+			productName = FitDropUITests;
+			productReference = A6DF7299317C0DC3ECEE8BF2 /* FitDropUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		TT000001 /* FitDrop */ = {
 			isa = PBXNativeTarget;
@@ -485,12 +533,20 @@
 				TT000001 /* FitDrop */,
 				1FB8219D1AAF32FEC566DF86 /* FitDropTests */,
 				2EA0F0EEBBDACC255C65DECF /* FitDropWidgets */,
+				6A56FE8EC14209B62EEFA854 /* FitDropUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		05089589E9DDBFA7138AFEA5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		250A26DACEF3B68599C2E6C7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -515,6 +571,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		092014C2903E43DE2303F82C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E358C4F3894F2FB849B2BDE /* FitDropUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		394A08A9ADA2696B1F4F413B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -594,6 +658,12 @@
 			target = TT000001 /* FitDrop */;
 			targetProxy = EC225174D41EE1D5504502F4 /* PBXContainerItemProxy */;
 		};
+		9D8830CCC3DF3281B9042C48 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = FitDrop;
+			target = TT000001 /* FitDrop */;
+			targetProxy = 8E0E4F25FD2F214188FE4277 /* PBXContainerItemProxy */;
+		};
 		ADF18B62B416FC8C39E08BEB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = FitDropWidgets;
@@ -603,6 +673,22 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		38EFD8DB687DE452B9D0604A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adnanmujkanovic.fitdrop.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = FitDrop;
+			};
+			name = Debug;
+		};
 		48D195366C10550CB5E6C099 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -675,6 +761,23 @@
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
+		};
+		DBE24703E9F9F7F30A8F2ED0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adnanmujkanovic.fitdrop.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = FitDrop;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
 		};
 		FC829608783C602E0475CD15 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -871,6 +974,15 @@
 			buildConfigurations = (
 				48D195366C10550CB5E6C099 /* Release */,
 				9A9FB7D24F06CC7AB7F92EFF /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		84F3A71DECF822355F40B570 /* Build configuration list for PBXNativeTarget "FitDropUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBE24703E9F9F7F30A8F2ED0 /* Release */,
+				38EFD8DB687DE452B9D0604A /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

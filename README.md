@@ -1,106 +1,78 @@
 # FitDrop — iOS Weight Loss Companion
 
-A native iPhone app built with Swift & SwiftUI. FitDrop combines workout tracking, food logging, a structured running plan, intermittent fasting, and a progress dashboard into one clean, motivating experience — no account or backend required.
+A native iPhone app built with Swift and SwiftUI. FitDrop brings food logging, intermittent fasting, water, workouts, a beginner running plan and weight progress into one app. There is no account, no subscription and no server: all data stays on your iPhone, with optional sync to Apple Health.
 
 ---
 
-## Screenshots & Modules
+## Install it on your iPhone (free Apple ID)
 
-| Onboarding | Dashboard | Workout |
-|---|---|---|
-| Multi-step setup | Weight chart + streaks | Treadmill & mat library |
+You need a Mac with **Xcode 16 or newer** and an iPhone running **iOS 17 or newer**.
 
-| Food Tracker | Running Plan | Fasting |
-|---|---|---|
-| Barcode scanner + macros | 4-week 5K build | Live countdown timer |
+1. **Get the code**
+   ```bash
+   git clone https://github.com/adnanmujkanovic/ai-mobile.git
+   cd ai-mobile
+   git checkout claude/fitdrop-ios-app-TfQ7Y
+   open FitDrop/FitDrop.xcodeproj
+   ```
+2. **Sign in to Xcode**: *Xcode → Settings → Accounts → +* and add your Apple ID.
+3. **Set the team for both app targets**: click the blue **FitDrop** project in the sidebar, then for the **FitDrop** target *and* the **FitDropWidgets** target open *Signing & Capabilities* and choose your Apple ID (Personal Team) under **Team**.
+   - If Xcode says the bundle identifier is taken, change `com.adnanmujkanovic.fitdrop` to something unique (for example `com.yourname.fitdrop`) and set the widget's to the same value plus `.widgets`.
+4. **Connect your iPhone** with a cable, unlock it, and tap **Trust**. The first time, turn on *Settings → Privacy & Security → Developer Mode* on the iPhone and restart it.
+5. Pick your iPhone as the run destination at the top of Xcode and press **⌘R**.
+6. On the iPhone, open *Settings → General → VPN & Device Management*, tap your Apple ID and **Trust** it, then open FitDrop.
+
+With a free Apple ID the app works for 7 days before you need to run it from Xcode again. A paid Apple Developer account removes that limit and lets you use TestFlight.
+
+**If signing fails because of HealthKit**: in the FitDrop target's *Signing & Capabilities*, remove the HealthKit capability. Everything except Apple Health sync keeps working.
 
 ---
 
 ## Features
 
+### Today (dashboard)
+- Calories left, eaten, goal and burned, with protein progress
+- **Water** tracker with +250 ml / +500 ml buttons and undo
+- Live fasting status (stage, time fasted, goal time)
+- Steps and active energy from Apple Health (when connected)
+- **Weight**: current, lost so far, distance to goal and progress bar; a chart with a 7-entry trend line; weekly rate, projected goal date from your trend, BMI; full weigh-in history with delete
+- This week's summary and streaks (food logging, fasting, weigh-ins, running weeks)
+
+### Nutrition
+- Search the **Open Food Facts** database as you type, or **scan a barcode** (or type the barcode number)
+- Log by **grams** (with the product's serving size as a one-tap option) or by **servings**
+- **Recent foods** and **favorites** with one-tap re-logging, **Quick Add** for calories only, and **copy a meal from the previous day**
+- Tap any entry to edit it; swipe to delete or favorite
+- Calorie ring, protein goal and carbs/fat breakdown per day; browse past days
+- If you're fasting, logging food offers to end the fast first
+
+### Fasting
+- Protocols 13:11, 16:8, 18:6, 20:4, or custom from 12 to 72 hours
+- Start now or **retroactively** ("I started earlier"); edit the start time or goal during a fast
+- Large timer, six fasting stages with descriptions, milestone checklist, pause/resume
+- **Lock Screen Live Activity and Dynamic Island** timer
+- Notifications at 12h, 16h and 18h, one hour before the goal, and at the goal (only for the fast you're doing)
+- History with a chart and swipe-to-delete, 7-day average and streak
+
+### Workouts
+- Treadmill interval workouts and mat workouts with calorie estimates scaled to your weight
+- Live session: intervals **advance automatically** with sound and haptics, timed holds, rest countdowns with skip, pause/resume, and the screen stays awake
+- End early to save the time you trained (calories are prorated), or discard
+- Recent workouts list; finished workouts are saved to Apple Health
+
+### Running
+- 4-week plan that builds on an easy 5K, with an **Up Next** card
+- Tick sessions off (and undo mistakes), monthly calendar, total distance, weekly streak
+- Log runs outside the plan with distance, time and pace
+
+### Profile & Settings
+- Sex, age, height and activity level for an accurate calorie target (Mifflin-St Jeor with a capped, safe deficit); optional custom calorie, protein and water targets
+- Fasting start time, daily fasting reminder, milestone alerts, evening food-log reminder, workout reminders
+- **Apple Health** sync: writes weight, water, food energy and macros, and workouts; reads steps and active energy
+- **CSV export** of all your data, and delete-all
+
 ### Onboarding
-- Collects name, current weight, goal weight, goal date, activity level
-- Calculates personalised daily calorie target using the **Mifflin-St Jeor BMR** formula with TDEE multiplier and a safe calorie deficit (max 750 kcal/day, floor 1,200 kcal)
-- Stores everything locally — no account required
-
-### Module 1 — Workout Library
-**Treadmill workouts**
-- Speed Intervals, Steady State, Incline Walk, Tempo Run, Pyramid Intervals
-- Speed zones: Easy (6–7 km/h), Tempo (8–9 km/h), Interval (10–11 km/h)
-- Each workout shows duration, estimated calories, visual intensity strip
-
-**Mat workouts**
-- Core Crusher, Lower Body Burn, Upper Body Strength, Full Body Circuit, Glute & Core
-- Sets × reps with rest countdowns between each set
-
-**Live session mode**
-- Active timer with interval/set tracking
-- Rest countdown with audio cue on completion
-- Session summary: total time + estimated calories burned
-- Every completed session saved to workout history
-
-### Module 2 — Food Scanner & Calorie Tracker
-- **Barcode scanner** using AVFoundation (EAN-8, EAN-13, UPC-E, QR, Code128)
-- **Open Food Facts API** for product lookup — free, no API key needed
-- Manual food search and fully manual entry fallback
-- Edit portion size before logging
-- Daily dashboard: calorie ring (consumed vs. goal), macro breakdown (protein / carbs / fat)
-- Organised by meal: Breakfast, Lunch, Dinner, Snack
-- Swipe to delete entries
-- **Fasting window integration** — warns if you try to log food during your fast
-
-### Module 3 — Running Plan ("5-Day Build")
-4-week progressive plan for someone currently running 5K at a slow pace:
-
-| Week | Days/Week | Focus |
-|------|-----------|-------|
-| 1 | 3 | Easy 5K runs — build the habit |
-| 2 | 3–4 | Introduce interval session |
-| 3 | 4 | Add tempo run, increase distance |
-| 4 | 5 | Long run (6.5K), intervals, structured rest |
-
-- Each session shows distance, pace zone, treadmill speed (km/h), estimated duration
-- Tap checkmark to mark complete
-- Weekly progress bar, monthly calendar with completed runs highlighted
-- Running streak counter
-
-### Module 4 — Progress Dashboard
-- Daily weight logging with date
-- Weight loss line chart (iOS Charts framework) with goal weight target line — last 30 entries
-- Weekly summary card: workouts completed, average calories, runs, average fasting hours
-- Streak trackers: running days, fasting days, food logging days, weigh-in days
-
-### Module 5 — Intermittent Fasting Tracker
-**Protocols:** 16:8, 18:6, 20:4, Custom
-
-**Active fast screen**
-- Large countdown timer (elapsed + remaining)
-- Animated progress arc
-- 6 fasting stages with descriptions:
-
-| Hours | Stage |
-|-------|-------|
-| 0–4h | Digestion |
-| 4–8h | Fat Burning Begins |
-| 8–12h | Glucose Depletion |
-| 12–16h | Ketosis Zone |
-| 16–18h | Autophagy |
-| 18h+ | Deep Fast |
-
-- One-tap Start / Pause / Resume / Break Fast
-- Broken fasts log actual hours achieved
-
-**History & stats**
-- List of all fasts: date, planned vs. actual hours
-- Weekly average fasting hours
-- Consecutive fasting streak
-
-**Push notifications**
-- Fast starts
-- Eating window opens
-- 12h ketosis milestone
-- 16h autophagy milestone
-- 1 hour before eating window closes
+Five short steps: name, body data, current and goal weight (with healthy-goal checks), goal date (warns if the pace needs more than 1 kg a week and suggests a sustainable date), and activity level.
 
 ---
 
@@ -108,16 +80,16 @@ A native iPhone app built with Swift & SwiftUI. FitDrop combines workout trackin
 
 | Area | Technology |
 |------|-----------|
-| Language | Swift 5.9 |
-| UI | SwiftUI |
-| Data | SwiftData (local, no backend) |
-| Camera | AVFoundation |
-| Charts | Swift Charts (iOS 17) |
+| Language | Swift 5 language mode |
+| UI | SwiftUI, Swift Charts |
+| Data | SwiftData (on device) |
+| Live Activity | ActivityKit + WidgetKit extension |
+| Health | HealthKit (optional) |
+| Camera | AVFoundation barcode scanning |
 | Notifications | UserNotifications |
-| External API | Open Food Facts (no key required) |
-| Architecture | MVVM |
-| Platform | iPhone only, iOS 17+ |
-| Dark Mode | Supported |
+| Food data | Open Food Facts API (no key required) |
+| Tests | Swift Testing unit tests, XCTest UI tests |
+| Platform | iPhone, iOS 17+, light and dark mode |
 
 ---
 
@@ -125,129 +97,50 @@ A native iPhone app built with Swift & SwiftUI. FitDrop combines workout trackin
 
 ```
 FitDrop/
-├── FitDrop.xcodeproj/
-└── FitDrop/
-    ├── FitDropApp.swift              # App entry, SwiftData container
-    ├── ContentView.swift             # RootView + 5-tab navigation
-    ├── Info.plist                    # Camera + notification permissions
-    ├── Assets.xcassets/              # AccentColor, AppIcon
-    │
-    ├── Models/
-    │   ├── UserProfile.swift         # User data, calorie target, fasting config
-    │   ├── WorkoutSession.swift      # Workout history + full library data
-    │   ├── FoodEntry.swift           # Food log + Open Food Facts models
-    │   ├── FastingSession.swift      # Fasting timer state + stage logic
-    │   └── RunSession.swift          # Run history + WeightLog + 4-week plan
-    │
-    ├── ViewModels/
-    │   ├── OnboardingViewModel.swift
-    │   ├── WorkoutViewModel.swift    # Session timer, interval tracking
-    │   ├── FoodViewModel.swift       # Search, barcode, logging
-    │   ├── FastingViewModel.swift    # Fast timer, pause/resume, streaks
-    │   ├── RunningPlanViewModel.swift
-    │   └── DashboardViewModel.swift  # Weekly stats, streaks, projections
-    │
-    ├── Views/
-    │   ├── Onboarding/OnboardingView.swift
-    │   ├── Workout/
-    │   │   ├── WorkoutLibraryView.swift
-    │   │   ├── WorkoutDetailView.swift
-    │   │   └── WorkoutSessionView.swift
-    │   ├── Food/
-    │   │   ├── FoodTrackerView.swift
-    │   │   ├── BarcodeScannerView.swift
-    │   │   └── FoodSearchView.swift
-    │   ├── Running/RunningPlanView.swift
-    │   ├── Dashboard/DashboardView.swift
-    │   └── Fasting/
-    │       ├── FastingView.swift
-    │       └── FastingHistoryView.swift
-    │
-    ├── Services/
-    │   ├── OpenFoodFactsService.swift  # async/await API client
-    │   └── NotificationManager.swift  # Scheduling all local notifications
-    │
-    └── Utilities/
-        ├── DesignSystem.swift          # Colors, fonts, reusable components
-        └── CalorieCalculator.swift     # BMR, TDEE, calorie target
+├── FitDrop.xcodeproj
+├── FitDrop/                      # The app
+│   ├── FitDropApp.swift          # App entry, SwiftData container
+│   ├── ContentView.swift         # Root view, tab bar, tab switching
+│   ├── Models/                   # UserProfile, FoodEntry + SavedFood, FastingSession,
+│   │                             # WorkoutSession, RunSession + WeightLog, WaterLog
+│   ├── ViewModels/               # Dashboard, Food, Fasting, Workout, RunningPlan, Onboarding
+│   ├── Views/                    # Dashboard, Food, Fasting, Workout, Running, Settings, Onboarding
+│   ├── Services/                 # Open Food Facts, notifications, HealthKit,
+│   │                             # Live Activity, CSV export
+│   └── Utilities/                # Design system, calorie math, streaks, number parsing,
+│                                 # haptics, debug demo data
+├── FitDropWidgets/               # Live Activity (Lock Screen + Dynamic Island)
+├── Shared/                       # Live Activity data shared by app and widget
+├── FitDropTests/                 # Unit tests (Swift Testing)
+└── FitDropUITests/               # End-to-end UI tests
 ```
 
 ---
 
-## Data Models (SwiftData)
+## Development
 
-```swift
-UserProfile     // name, weights, goal date, activity level, fasting config, calorie target
-WorkoutSession  // date, name, type, duration, calories, completed
-FoodEntry       // date, name, brand, macros, serving size, meal type, barcode
-FastingSession  // start/end time, planned hours, actual hours, pause state
-RunSession      // plan week/day, distance, duration, pace zone, completion
-WeightLog       // date, weight (kg)
+Run the tests from Xcode with **⌘U**, or from the terminal:
+
+```bash
+cd FitDrop
+xcodebuild test -project FitDrop.xcodeproj -scheme FitDrop \
+  -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
-All data is stored **100% locally** using SwiftData. No server, no account, no network required (except food search).
+**Demo data** (Debug builds only): add the launch arguments `-FitDropDemo YES` to fill an empty install with a month of sample data, and `-FitDropTab fasting` (or `today`, `nutrition`, `workouts`, `running`) to open a tab. `-FitDropReset YES` deletes everything at launch. Set these in *Product → Scheme → Edit Scheme → Run → Arguments*.
 
 ---
 
-## Getting Started
+## Data & Privacy
 
-### Requirements
-- Mac with **Xcode 15+**
-- iPhone running **iOS 17+**
-- Free Apple ID (for device testing)
+- Everything is stored in SwiftData on the device. There's no account, analytics or backend.
+- The only network calls go to Open Food Facts when you search or scan food. Food data © Open Food Facts contributors, under the [Open Database License](https://opendatacommons.org/licenses/odbl/1-0/).
+- Apple Health sync is off until you turn it on, and you control each data type in the Health app.
 
-### Steps
+| Permission | Why |
+|-----------|-----|
+| Camera | Scanning food barcodes |
+| Notifications | Fasting milestones and reminders you turn on |
+| Apple Health | Optional sync of weight, water, food and workouts |
 
-1. **Clone the repo**
-   ```bash
-   git clone https://github.com/adnanmujkanovic/ai-mobile.git
-   cd ai-mobile
-   git checkout claude/fitdrop-ios-app-TfQ7Y
-   ```
-
-2. **Open in Xcode**
-   ```
-   open FitDrop/FitDrop.xcodeproj
-   ```
-
-3. **Set your Development Team**
-   - Select the `FitDrop` target → Signing & Capabilities
-   - Choose your Apple ID under Team
-
-4. **Connect your iPhone** via USB and select it as the build target
-
-5. **Run** with `⌘R`
-
-6. **First run on device** — go to:
-   ```
-   iPhone Settings → General → VPN & Device Management → [Your Apple ID] → Trust
-   ```
-
-### No Mac? Use a cloud Mac
-- [MacinCloud](https://www.macincloud.com) — pay-per-hour remote Mac access
-- Build the app there and distribute via **TestFlight** to your iPhone
-
----
-
-## External API
-
-**Open Food Facts** — `https://world.openfoodfacts.org/api`
-- Free, open database of food products worldwide
-- No API key required
-- Used for barcode product lookup and food name search
-- Returns: product name, brand, calories, protein, carbs, fat, fibre per 100g
-
----
-
-## Permissions
-
-| Permission | Usage |
-|-----------|-------|
-| Camera | Barcode scanning in food tracker |
-| Notifications | Fasting reminders, workout reminders, food log reminder |
-
----
-
-## Branch
-
-All code lives on branch: `claude/fitdrop-ios-app-TfQ7Y`
+FitDrop isn't a medical device. Fasting and calorie restriction aren't right for everyone; talk to a doctor first if you're pregnant, diabetic, take medication or have a history of eating disorders.

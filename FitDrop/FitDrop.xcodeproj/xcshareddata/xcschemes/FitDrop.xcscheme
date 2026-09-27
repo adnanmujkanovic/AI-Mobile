@@ -61,6 +61,16 @@
                ReferencedContainer = "container:FitDrop.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6A56FE8EC14209B62EEFA854"
+               BuildableName = "FitDropUITests.xctest"
+               BlueprintName = "FitDropUITests"
+               ReferencedContainer = "container:FitDrop.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

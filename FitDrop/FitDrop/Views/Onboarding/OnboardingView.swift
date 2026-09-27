@@ -6,6 +6,7 @@ struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
+        NavigationStack {
         ZStack {
             LinearGradient.fdPrimary
                 .ignoresSafeArea()
@@ -102,6 +103,7 @@ struct OnboardingView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: FDRadius.lg))
                         }
                         .disabled(!vm.isCurrentStepValid)
+                        .accessibilityIdentifier("onboardingContinue")
                     } else {
                         Button {
                             vm.completeOnboarding(modelContext: modelContext)
@@ -126,6 +128,9 @@ struct OnboardingView: View {
                 .padding(.horizontal, FDSpacing.lg)
                 .padding(.bottom, FDSpacing.xl)
             }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .keyboardDoneButton()
         }
     }
 }

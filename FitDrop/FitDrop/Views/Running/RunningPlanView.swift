@@ -407,6 +407,7 @@ struct LogRunView: View {
                     if let pace { Text("Average pace \(pace)") }
                 }
             }
+            .keyboardDoneButton()
             .navigationTitle("Log a Run")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

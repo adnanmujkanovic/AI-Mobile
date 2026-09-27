@@ -27,6 +27,7 @@ struct SettingsView: View {
                 dataSection
                 aboutSection
             }
+            .keyboardDoneButton()
             .navigationTitle("Profile & Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

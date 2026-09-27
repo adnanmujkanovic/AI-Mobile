@@ -779,6 +779,7 @@ struct WeightEntrySheet: View {
 
                 Spacer()
             }
+            .keyboardDoneButton()
             .navigationTitle("Log Weight")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

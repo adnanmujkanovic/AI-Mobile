@@ -404,6 +404,7 @@ struct QuickAddView: View {
                     Text("Adds to \(mealType.lowercased()). Use this when you only know the calories, like a restaurant meal.")
                 }
             }
+            .keyboardDoneButton()
             .navigationTitle("Quick Add")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -562,6 +563,7 @@ struct FoodEntryEditView: View {
             }
         }
         .scrollDismissesKeyboard(.interactively)
+        .keyboardDoneButton()
         .onChange(of: draft.basis) { old, new in
             // Keep the amount sensible when switching measurement
             if old == .perServing && new == .per100g { draft.quantity = draft.typicalServingG ?? 100 }

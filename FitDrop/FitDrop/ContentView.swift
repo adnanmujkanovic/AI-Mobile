@@ -16,7 +16,10 @@ struct RootView: View {
             }
         }
         #if DEBUG
-        .onAppear { DemoData.seedIfNeeded(modelContext) }
+        .onAppear {
+            DemoData.resetIfRequested(modelContext)
+            DemoData.seedIfNeeded(modelContext)
+        }
         #endif
     }
 }
