@@ -303,6 +303,32 @@ class FoodViewModel: ObservableObject {
         return entry
     }
 
+    /// Logs the foods Claude recognized. Values are stored per 100 g so the amount stays editable.
+    @discardableResult
+    func logAIItems(_ items: [AIFoodItem], mealType: String, modelContext: ModelContext) -> [FoodEntry] {
+        let entries = items.filter { $0.estimatedGrams > 0 }.map { item -> FoodEntry in
+            let per100 = item.per100g
+            let entry = FoodEntry(
+                name: item.name.trimmingCharacters(in: .whitespaces),
+                brand: "AI estimate",
+                calories: per100.calories,
+                protein: per100.protein,
+                carbs: per100.carbs,
+                fat: per100.fat,
+                servingDescription: "100g",
+                servingAmount: item.estimatedGrams / 100,
+                mealType: mealType
+            )
+            entry.date = logDate(for: selectedDate)
+            modelContext.insert(entry)
+            return entry
+        }
+        modelContext.saveOrLog()
+        entries.forEach { HealthKitManager.shared.saveFood($0) }
+        if !entries.isEmpty { Haptics.success() }
+        return entries
+    }
+
     /// Copies one meal from the day before the selected day. Returns how many entries were copied.
     @discardableResult
     func copyMealFromPreviousDay(_ meal: MealType, all entries: [FoodEntry], modelContext: ModelContext) -> Int {

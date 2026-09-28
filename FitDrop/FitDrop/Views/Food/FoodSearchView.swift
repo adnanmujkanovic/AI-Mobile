@@ -11,6 +11,7 @@ struct AddFoodView: View {
     @State private var tab: ListTab = .recent
     @State private var showScanner = false
     @State private var showQuickAdd = false
+    @State private var showAIScan = false
     @State private var loggedName: String? = nil
     @FocusState private var searchFocused: Bool
 
@@ -49,6 +50,11 @@ struct AddFoodView: View {
                 vm.handleBarcode(barcode)
             }
         }
+        .sheet(isPresented: $showAIScan) {
+            AIFoodScanView(vm: vm, startWithCamera: true) { count in
+                if count > 0 { dismiss() }
+            }
+        }
         .sheet(isPresented: $showQuickAdd) {
             QuickAddView(mealType: vm.selectedMealType) { calories, protein, name in
                 if vm.quickAdd(calories: calories, protein: protein, name: name, mealType: vm.selectedMealType, modelContext: modelContext) != nil {
@@ -67,6 +73,11 @@ struct AddFoodView: View {
                 vm.editingEntry = vm.pendingManualDraftForBarcode
                 vm.pendingManualDraftForBarcode = nil
                 vm.errorMessage = nil
+            }
+            Button("Use AI Photo") {
+                vm.pendingManualDraftForBarcode = nil
+                vm.errorMessage = nil
+                showAIScan = true
             }
             Button("Scan Again") {
                 vm.pendingManualDraftForBarcode = nil
@@ -120,7 +131,8 @@ struct AddFoodView: View {
                 .pickerStyle(.segmented)
 
                 HStack(spacing: FDSpacing.sm) {
-                    QuickActionButton(icon: "barcode.viewfinder", title: "Scan") { showScanner = true }
+                    QuickActionButton(icon: "sparkles", title: "AI Photo") { showAIScan = true }
+                    QuickActionButton(icon: "barcode.viewfinder", title: "Barcode") { showScanner = true }
                     QuickActionButton(icon: "bolt.fill", title: "Quick Add") { showQuickAdd = true }
                     QuickActionButton(icon: "square.and.pencil", title: "Manual") { vm.startManualEntry() }
                 }

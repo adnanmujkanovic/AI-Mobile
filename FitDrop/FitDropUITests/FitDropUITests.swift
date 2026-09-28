@@ -94,7 +94,9 @@ final class FitDropUITests: XCTestCase {
     func testQuickAddWhileFastingOffersToEndFast() {
         launch(demo: true, tab: "nutrition")
 
-        app.buttons["Add food"].tap()
+        let addFood = app.buttons["Add food"]
+        XCTAssertTrue(addFood.waitForExistence(timeout: 10))
+        addFood.tap()
         XCTAssertTrue(app.alerts["You're Fasting"].waitForExistence(timeout: 3))
         app.alerts.buttons["Log Without Ending"].tap()
 
@@ -111,6 +113,23 @@ final class FitDropUITests: XCTestCase {
             app.swipeUp()
         }
         XCTAssertTrue(row.exists)
+    }
+
+    func testAIPhotoAsksForKeyWhenNotConfigured() {
+        launch(demo: true, tab: "nutrition")
+
+        let addFood = app.buttons["Add food"]
+        XCTAssertTrue(addFood.waitForExistence(timeout: 10))
+        addFood.tap()
+        if app.alerts["You're Fasting"].waitForExistence(timeout: 3) {
+            app.alerts.buttons["Log Without Ending"].tap()
+        }
+        let aiPhoto = app.buttons["AI Photo"]
+        XCTAssertTrue(aiPhoto.waitForExistence(timeout: 3))
+        aiPhoto.tap()
+
+        XCTAssertTrue(app.navigationBars["AI Food Scan"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["Get an API Key"].exists)
     }
 
     func testBreakingFastShowsStartCard() {

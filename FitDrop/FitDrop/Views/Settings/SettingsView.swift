@@ -14,6 +14,8 @@ struct SettingsView: View {
     @State private var confirmReset = false
     @State private var goalWeightText = ""
     @State private var heightText = ""
+    @State private var aiKeyConfigured = AIFoodAnalyzer.isConfigured
+    @State private var aiKeyInput = ""
 
     var body: some View {
         NavigationStack {
@@ -24,6 +26,7 @@ struct SettingsView: View {
                 fastingSection
                 remindersSection
                 healthSection
+                aiSection
                 dataSection
                 aboutSection
             }
@@ -224,6 +227,37 @@ struct SettingsView: View {
             Text("Apple Health")
         } footer: {
             Text("Saves weight, water, food energy and macros, and workouts to Health. Reads steps and active energy to show what you burned. You can change exactly what's shared in the Health app.")
+        }
+    }
+
+    private var aiSection: some View {
+        Section {
+            if aiKeyConfigured {
+                Label("Claude API key saved", systemImage: "checkmark.seal.fill")
+                    .foregroundColor(.fdGreen)
+                Button("Remove Key", role: .destructive) {
+                    KeychainStore.set(nil, for: AIFoodAnalyzer.apiKeyKeychainKey)
+                    aiKeyConfigured = false
+                }
+            } else {
+                SecureField("Paste Claude API key (sk-ant-…)", text: $aiKeyInput)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                Button("Save Key") {
+                    KeychainStore.set(aiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines), for: AIFoodAnalyzer.apiKeyKeychainKey)
+                    aiKeyInput = ""
+                    aiKeyConfigured = AIFoodAnalyzer.isConfigured
+                    Haptics.success()
+                }
+                .disabled(!aiKeyInput.trimmingCharacters(in: .whitespaces).hasPrefix("sk-ant-"))
+                Link(destination: URL(string: "https://console.anthropic.com/settings/keys")!) {
+                    Label("Get an API Key", systemImage: "arrow.up.right.square")
+                }
+            }
+        } header: {
+            Text("AI Food Recognition")
+        } footer: {
+            Text("Recognizes food from a photo or description with Anthropic's Claude, for meals without barcodes. The key is stored only in this iPhone's Keychain. Photos are sent to Anthropic only when you use AI Photo.")
         }
     }
 
